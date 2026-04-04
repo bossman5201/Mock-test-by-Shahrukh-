@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MPSC Master Analytics</title>
+    <style>
+        :root { --primary: #1a73e8; --bg: #f8f9fa; --card: #ffffff; --text: #202124; --border: #dadce0; --correct: #188038;}
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); padding: 40px; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        h1 { color: var(--primary); margin: 0; }
+        .btn { background: var(--primary); color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; text-decoration: none; font-weight: bold; }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .card { background: var(--card); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+        .card h2 { margin-top: 0; font-size: 1.2rem; color: #5f6368; border-bottom: 2px solid var(--bg); padding-bottom: 10px; }
+        
+        .stat-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f3f4; }
+        .stat-row:last-child { border-bottom: none; }
+        .stat-bar-container { width: 100%; background: #e8eaed; border-radius: 4px; height: 8px; margin-top: 8px; overflow: hidden; }
+        .stat-bar { height: 100%; background: var(--primary); }
+    </style>
+
+    <script src="mock_test_1_analyzed.js"></script>
+    <script src="mock_test_1_1_analyzed.js"></script>
+    <script src="mock_test_1_2_analyzed.js"></script>
+    
+    <script src="mock_test_2_analyzed.js"></script>
+    <script src="mock_test_2_1_analyzed.js"></script>
+    <script src="mock_test_2_2_analyzed.js"></script>
+    <script src="mock_test_2_3_analyzed.js"></script>
+    <script src="mock_test_2_4_analyzed.js"></script>
+    
+    <script src="mock_test_3_analyzed.js"></script>
+    <script src="mock_test_3_1_analyzed.js"></script>
+    <script src="mock_test_3_2_analyzed.js"></script>
+    <script src="mock_test_3_3_analyzed.js"></script>
+    <script src="mock_test_3_4_analyzed.js"></script>
+    
+    <script src="mock_test_4_analyzed.js"></script>
+    <script src="mock_test_4_1_analyzed.js"></script>
+    <script src="mock_test_4_2_analyzed.js"></script>
+    <script src="mock_test_4_3_analyzed.js"></script>
+    <script src="mock_test_4_4_analyzed.js"></script>
+    <script src="mock_test_4_5_analyzed.js"></script>
+    <script src="mock_test_4_6_analyzed.js"></script>
+    <script src="mock_test_4_7_analyzed.js"></script>
+    <script src="mock_test_4_8_analyzed.js"></script>
+    <script src="mock_test_4_9_analyzed.js"></script>
+    
+    <script src="mock_test_5_analyzed.js"></script>
+    <script src="mock_test_5_1_analyzed.js"></script>
+    <script src="mock_test_5_2_analyzed.js"></script>
+    <script src="mock_test_5_3_analyzed.js"></script>
+    <script src="mock_test_5_4_analyzed.js"></script>
+
+</head>
+<body>
+
+    <header>
+        <h1>Data-Driven Insights Dashboard</h1>
+        <a href="index.html" class="btn">Back to Tests</a>
+    </header>
+
+    <div class="card" style="margin-bottom: 30px; border-color: var(--primary); box-shadow: 0 4px 15px rgba(26, 115, 232, 0.15);">
+        <h2 style="color: var(--primary);">🔍 Predictive Search Engine (Option-Recycling Scanner)</h2>
+        <p style="color: #5f6368; font-size: 0.95rem; margin-bottom: 15px;">Search any keyword to find every question, trap, and hidden option fact associated with it across all 2,800 questions.</p>
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <input type="text" id="search-input" placeholder="Type a keyword (e.g., 'Ambedkar', 'Article 14', 'Panchayat')..." style="flex: 1; padding: 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem;">
+            <button class="btn" onclick="runSearch()">Deep Scan</button>
+        </div>
+        <div id="search-results" style="max-height: 500px; overflow-y: auto; padding-right: 10px;"></div>
+    </div>
+
+    <div class="grid">
+        <div class="card">
+            <h2>1. Exact Subject Weightage</h2>
+            <div id="subject-weightage-container">Loading...</div>
+        </div>
+
+        <div class="card">
+            <h2>3. Examiner's Trap Profile</h2>
+            <div id="trap-profile-container">Loading...</div>
+        </div>
+
+        <div class="card" style="grid-column: span 2;">
+            <h2>2. High-Yield Micro-Topics (Top 10 Most Asked)</h2>
+            <div id="topic-heatmap-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">Loading...</div>
+        </div>
+    </div>
+
+    <script>
+        // We make allMPSCData global so the search bar can access it!
+        window.allMPSCData = [];
+
+        window.onload = function() {
+            window.allMPSCData = [
+                ...(typeof mockTestData1_analyzed !== 'undefined' ? mockTestData1_analyzed : []),
+                ...(typeof mockTestData1_1_analyzed !== 'undefined' ? mockTestData1_1_analyzed : []),
+                ...(typeof mockTestData1_2_analyzed !== 'undefined' ? mockTestData1_2_analyzed : []),
+                ...(typeof mockTestData2_analyzed !== 'undefined' ? mockTestData2_analyzed : []),
+                ...(typeof mockTestData2_1_analyzed !== 'undefined' ? mockTestData2_1_analyzed : []),
+                ...(typeof mockTestData2_2_analyzed !== 'undefined' ? mockTestData2_2_analyzed : []),
+                ...(typeof mockTestData2_3_analyzed !== 'undefined' ? mockTestData2_3_analyzed : []),
+                ...(typeof mockTestData2_4_analyzed !== 'undefined' ? mockTestData2_4_analyzed : []),
+                ...(typeof mockTestData3_analyzed !== 'undefined' ? mockTestData3_analyzed : []),
+                ...(typeof mockTestData3_1_analyzed !== 'undefined' ? mockTestData3_1_analyzed : []),
+                ...(typeof mockTestData3_2_analyzed !== 'undefined' ? mockTestData3_2_analyzed : []),
+                ...(typeof mockTestData3_3_analyzed !== 'undefined' ? mockTestData3_3_analyzed : []),
+                ...(typeof mockTestData3_4_analyzed !== 'undefined' ? mockTestData3_4_analyzed : []),
+                ...(typeof mockTestData4_analyzed !== 'undefined' ? mockTestData4_analyzed : []),
+                ...(typeof mockTestData4_1_analyzed !== 'undefined' ? mockTestData4_1_analyzed : []),
+                ...(typeof mockTestData4_2_analyzed !== 'undefined' ? mockTestData4_2_analyzed : []),
+                ...(typeof mockTestData4_3_analyzed !== 'undefined' ? mockTestData4_3_analyzed : []),
+                ...(typeof mockTestData4_4_analyzed !== 'undefined' ? mockTestData4_4_analyzed : []),
+                ...(typeof mockTestData4_5_analyzed !== 'undefined' ? mockTestData4_5_analyzed : []),
+                ...(typeof mockTestData4_6_analyzed !== 'undefined' ? mockTestData4_6_analyzed : []),
+                ...(typeof mockTestData4_7_analyzed !== 'undefined' ? mockTestData4_7_analyzed : []),
+                ...(typeof mockTestData4_8_analyzed !== 'undefined' ? mockTestData4_8_analyzed : []),
+                ...(typeof mockTestData4_9_analyzed !== 'undefined' ? mockTestData4_9_analyzed : []),
+                ...(typeof mockTestData5_analyzed !== 'undefined' ? mockTestData5_analyzed : []),
+                ...(typeof mockTestData5_1_analyzed !== 'undefined' ? mockTestData5_1_analyzed : []),
+                ...(typeof mockTestData5_2_analyzed !== 'undefined' ? mockTestData5_2_analyzed : []),
+                ...(typeof mockTestData5_3_analyzed !== 'undefined' ? mockTestData5_3_analyzed : []),
+                ...(typeof mockTestData5_4_analyzed !== 'undefined' ? mockTestData5_4_analyzed : [])
+            ];
+
+            const totalQuestions = window.allMPSCData.length;
+
+            if (totalQuestions === 0) {
+                document.getElementById('subject-weightage-container').innerHTML = "No analyzed data files found in this folder.";
+                document.getElementById('trap-profile-container').innerHTML = "No analyzed data files found in this folder.";
+                document.getElementById('topic-heatmap-container').innerHTML = "No analyzed data files found in this folder.";
+                return;
+            }
+
+            let subjectCounts = {};
+            let trapCounts = {};
+            let topicCounts = {};
+
+            window.allMPSCData.forEach(q => {
+                let sub = q.subject || "Unknown";
+                subjectCounts[sub] = (subjectCounts[sub] || 0) + 1;
+
+                let trap = q.trap_detected || "None";
+                if (trap !== "None" && trap !== "none") {
+                    trapCounts[trap] = (trapCounts[trap] || 0) + 1;
+                }
+
+                let topic = q.topic || "Unknown";
+                let comboName = `${sub}: ${topic}`;
+                topicCounts[comboName] = (topicCounts[comboName] || 0) + 1;
+            });
+
+            // 1. Subject Weightage
+            let subjectHTML = "";
+            Object.entries(subjectCounts).sort((a, b) => b[1] - a[1]).forEach(([subject, count]) => {
+                let percent = ((count / totalQuestions) * 100).toFixed(1);
+                subjectHTML += `
+                    <div class="stat-row" style="flex-direction: column;">
+                        <div style="display: flex; justify-content: space-between;"><strong>${subject}</strong><span>${percent}% (${count} Qs)</span></div>
+                        <div class="stat-bar-container"><div class="stat-bar" style="width: ${percent}%;"></div></div>
+                    </div>`;
+            });
+            document.getElementById('subject-weightage-container').innerHTML = subjectHTML;
+
+            // 3. Trap Profile
+            let trapHTML = "";
+            let sortedTraps = Object.entries(trapCounts).sort((a, b) => b[1] - a[1]);
+            let totalTraps = sortedTraps.reduce((sum, item) => sum + item[1], 0);
+            sortedTraps.forEach(([trap, count]) => {
+                let percent = ((count / totalTraps) * 100).toFixed(1);
+                trapHTML += `
+                    <div class="stat-row" style="flex-direction: column;">
+                        <div style="display: flex; justify-content: space-between;"><strong>${trap}</strong><span style="color: #d93025;">${percent}%</span></div>
+                        <div class="stat-bar-container"><div class="stat-bar" style="width: ${percent}%; background: #d93025;"></div></div>
+                    </div>`;
+            });
+            document.getElementById('trap-profile-container').innerHTML = trapHTML || "No traps detected.";
+
+            // 2. Micro-Topic Heatmap
+            let topicHTML = "";
+            Object.entries(topicCounts).sort((a, b) => b[1] - a[1]).slice(0, 10).forEach(([topic, count], index) => {
+                topicHTML += `
+                    <div class="stat-row">
+                        <span><strong style="color:var(--primary);">#${index+1}</strong> ${topic}</span>
+                        <strong>${count} Qs</strong>
+                    </div>`;
+            });
+            document.getElementById('topic-heatmap-container').innerHTML = topicHTML;
+        };
+
+        // NEW: The Search Engine Logic
+        function runSearch() {
+            const query = document.getElementById('search-input').value.toLowerCase().trim();
+            const resultsContainer = document.getElementById('search-results');
+            if(!query) { resultsContainer.innerHTML = ''; return; }
+
+            resultsContainer.innerHTML = '<div style="padding:20px; text-align:center;">Scanning 2,800 questions...</div>';
+
+            setTimeout(() => {
+                let results = window.allMPSCData.filter(q => {
+                    let textToSearch = (
+                        (q.question_marathi || "") + " " +
+                        (q.question_english || "") + " " +
+                        (q.explanation_marathi || "") + " " +
+                        (q.explanation_english || "")
+                    ).toLowerCase();
+
+                    if(q.options_breakdown) {
+                        q.options_breakdown.forEach(opt => {
+                            textToSearch += " " + (opt.option || opt.option_no || "") + " " + (opt.fact || opt.reason || "");
+                        });
+                    }
+                    return textToSearch.includes(query);
+                });
+
+                if(results.length === 0) {
+                    resultsContainer.innerHTML = `<div style="padding:15px; color:#d93025; font-weight:bold;">No matches found for "${query}".</div>`;
+                    return;
+                }
+
+                let html = `<div style="padding: 10px 0; font-weight:bold; color:var(--correct);">✅ Found ${results.length} related questions:</div>`;
+                results.forEach((q) => {
+                    html += `
+                        <div style="background: #f8faff; border-left: 4px solid var(--primary); padding: 15px; margin-bottom: 15px; border-radius: 6px; border: 1px solid #e8f0fe;">
+                            <div style="font-size: 0.85rem; color: var(--primary); margin-bottom: 8px; font-weight: bold; text-transform: uppercase;">
+                                📚 ${q.subject} > ${q.topic} | 🚨 Trap: ${q.trap_detected || "None"}
+                            </div>
+                            <div style="font-weight: bold; margin-bottom: 5px;">${q.question_marathi}</div>
+                            <div style="margin-bottom: 10px; font-size: 0.95rem; color: #5f6368;">${q.question_english || ""}</div>
+                            <div style="font-size: 0.9rem; color: #333; background: white; padding: 10px; border-radius: 4px; border: 1px solid var(--border);">
+                                <b>AI Explanation:</b> ${q.explanation_marathi}
+                            </div>
+                        </div>
+                    `;
+                });
+                resultsContainer.innerHTML = html;
+            }, 100); // Small delay to allow UI to show "Scanning..."
+        }
+
+        // Allow pressing 'Enter' to search
+        document.getElementById("search-input").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                runSearch();
+            }
+        });
+    </script>
+</body>
+</html>

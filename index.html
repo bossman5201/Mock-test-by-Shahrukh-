@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MPSC Test Series</title>
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --bg: #f8f9fa;
+            --card: #ffffff;
+            --text: #202124;
+            --border: #dadce0;
+            --correct: #188038;
+            --wrong: #d93025;
+            --review: #9c27b0;
+            --hover: #f1f3f4;
+        }
+        * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { margin: 0; background-color: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* Shared Header */
+        header { background: var(--card); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); z-index: 10; width: 100%; }
+        .app-title { font-size: 1.5rem; font-weight: bold; color: var(--primary); margin: 0; }
+        
+        /* Buttons */
+        .btn { background: var(--primary); color: white; border: none; padding: 10px 20px; font-size: 1rem; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .btn:hover { background: #1557b0; }
+        .btn-outline { background: white; color: var(--primary); border: 2px solid var(--primary); text-decoration: none; display: inline-block;}
+        .btn-outline:hover { background: #e8f0fe; }
+        .btn-review { background: var(--review); color: white; border: none; }
+        .btn-review:hover { background: #7b1fa2; }
+        .btn-danger { background: var(--wrong); color: white; border: none; padding: 10px 20px; font-size: 1rem; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .btn-danger:hover { background: #c5221f; }
+        .btn-sm { padding: 8px 15px; font-size: 0.95rem; }
+
+        /* Dashboard Screen */
+        #dashboard-screen { flex: 1; overflow-y: auto; padding: 40px; }
+        .dashboard-header { max-width: 1200px; margin: 0 auto 30px; text-align: center; }
+        .test-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }
+        .test-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 25px; text-align: center; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between;}
+        .test-card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); border-color: var(--primary); }
+        .test-icon { font-size: 2.5rem; margin-bottom: 15px; }
+        .test-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 10px; }
+        .test-meta { color: #5f6368; font-size: 0.9rem; margin-bottom: 15px;}
+        
+        /* History Badge */
+        .history-badge { background: #e6f4ea; color: var(--correct); padding: 8px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; border: 1px solid #ceead6; }
+
+        /* Exam Screen */
+        #exam-screen { display: none; flex-direction: column; flex: 1; overflow: hidden; height: 100%; width: 100%; }
+        .timer { font-size: 1.3rem; font-weight: bold; color: var(--wrong); background: #fce8e6; padding: 6px 16px; border-radius: 6px; }
+        .exam-container { display: flex; flex: 1; overflow: hidden; width: 100%; }
+        
+        .question-panel { flex: 3; padding: 25px; overflow-y: auto; background: var(--bg); position: relative; }
+        .question-card { background: var(--card); padding: 0 30px 30px 30px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid var(--border); max-width: 1400px; margin: 0 auto; }
+        
+        .q-header { display: flex; justify-content: space-between; align-items: center; font-size: 1.2rem; font-weight: bold; margin-bottom: 20px; color: var(--primary); border-bottom: 2px solid var(--hover); padding: 15px 0; position: sticky; top: 0; background: var(--card); z-index: 5; }
+        .top-nav { display: flex; gap: 10px; }
+        
+        .q-text-container { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 25px; }
+        .lang-label { font-size: 0.8rem; font-weight:bold; color: #80868b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; border-bottom: 1px solid var(--hover); padding-bottom: 4px;}
+        .q-text { font-size: 1.15rem; line-height: 1.5; white-space: pre-wrap; color: var(--text); }
+        
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .option-btn { background: #f8faff; border: 2px solid #e8f0fe; padding: 12px 15px; text-align: left; border-radius: 8px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; gap: 5px; }
+        .option-btn:hover { border-color: #aecbfa; background: #e8f0fe; }
+        .option-btn.selected { border-color: var(--primary); background: #e8f0fe; box-shadow: 0 0 0 1px var(--primary); }
+        .opt-mr { font-weight: 600; font-size: 1.05rem; }
+        .opt-en { color: #5f6368; font-size: 0.95rem; }
+        
+        .nav-buttons { margin-top: 25px; display: flex; justify-content: space-between; max-width: 1400px; margin-left: auto; margin-right: auto; }
+
+        /* Right Palette */
+        .palette-panel { flex: 1; background: var(--card); border-left: 1px solid var(--border); padding: 25px; overflow-y: auto; min-width: 300px; max-width: 350px; }
+        .palette-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 20px; }
+        .palette-btn { aspect-ratio: 1; border: 1px solid var(--border); background: white; border-radius: 50%; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .palette-btn:hover { background: var(--hover); }
+        .palette-btn.marked { background: var(--review); color: white; border-color: var(--review); }
+        .palette-btn.attempted { background: var(--primary); color: white; border-color: var(--primary); }
+        .palette-btn.current { box-shadow: 0 0 0 3px #fbbc04; border-color: #fbbc04; }
+
+        /* Result Screen */
+        #result-screen { display: none; flex: 1; overflow-y: auto; padding: 40px; background: var(--bg); }
+        .score-card { background: var(--card); padding: 40px; border-radius: 12px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 800px; margin: 0 auto 40px; border: 1px solid var(--border); }
+        .final-score { font-size: 5rem; color: var(--primary); font-weight: 800; margin: 10px 0; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-top: 30px; }
+        .stat-box { padding: 20px; border-radius: 8px; font-weight: 600; font-size: 1.1rem; }
+        .bg-correct { background: #e6f4ea; color: var(--correct); }
+        .bg-wrong { background: #fce8e6; color: var(--wrong); }
+        .bg-skip { background: #f1f3f4; color: #5f6368; }
+        .bg-cancelled { background: #fef7e0; color: #b06000; }
+        
+        .analysis-container { max-width: 800px; margin: 0 auto; }
+        .analysis-item { background: var(--card); padding: 25px; margin-bottom: 20px; border-radius: 8px; border-left: 6px solid; box-shadow: 0 2px 6px rgba(0,0,0,0.04); border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+        .analysis-item.correct-ans { border-left-color: var(--correct); }
+        .analysis-item.wrong-ans { border-left-color: var(--wrong); }
+        .analysis-item.skipped-ans { border-left-color: #bdc1c6; }
+        .analysis-item.cancelled-ans { border-left-color: #fbbc04; }
+
+        /* Modals & Overlays */
+        #loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 100; justify-content: center; align-items: center; flex-direction: column; }
+        .spinner { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-box { background: var(--card); padding: 30px; border-radius: 12px; max-width: 450px; width: 90%; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .modal-title { font-size: 1.5rem; font-weight: bold; margin-bottom: 15px; color: var(--text); }
+        .modal-text { font-size: 1.1rem; color: #5f6368; margin-bottom: 25px; line-height: 1.5; white-space: pre-wrap; }
+        .modal-buttons { display: flex; gap: 15px; justify-content: center; }
+    </style>
+</head>
+<body>
+
+    <div id="dashboard-screen">
+        <header style="margin: -40px -40px 40px -40px;">
+            <h1 class="app-title">MPSC Test Series</h1>
+            <a href="analytics.html" class="btn" style="background: #34a853; text-decoration: none;">📊 Master Analytics</a>
+        </header>
+        <div class="dashboard-header">
+            <h2>Select a Mock Test</h2>
+            <p style="color: #5f6368;">All exams are 1 Hour duration with 1/4th negative marking.</p>
+        </div>
+        <div class="test-grid" id="test-grid">
+            </div>
+    </div>
+
+    <div id="exam-screen">
+        <header>
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <h2 class="app-title" id="active-test-title">Mock Test</h2>
+                <div class="timer" id="timer-display">60:00</div>
+            </div>
+            <button class="btn" onclick="confirmSubmit()">Submit Exam</button>
+        </header>
+        
+        <div class="exam-container">
+            <div class="question-panel">
+                <div class="question-card">
+                    <div class="q-header">
+                        <div id="q-number">Question 1 of 100</div>
+                        <div class="top-nav">
+                            <button class="btn btn-outline btn-sm" onclick="prevQuestion()">Previous</button>
+                            <button class="btn btn-sm btn-review" onclick="markForReview()">Mark for Review</button>
+                            <button class="btn btn-sm" onclick="nextQuestion()">Save & Next</button>
+                        </div>
+                    </div>
+                    
+                    <div class="q-text-container">
+                        <div>
+                            <div class="lang-label">Marathi</div>
+                            <div class="q-text" id="q-text-mr">Loading...</div>
+                        </div>
+                        <div>
+                            <div class="lang-label">English</div>
+                            <div class="q-text" id="q-text-en">Loading...</div>
+                        </div>
+                    </div>
+
+                    <div class="options-grid" id="options-container"></div>
+                </div>
+                
+                <div class="nav-buttons">
+                    <button class="btn btn-outline" onclick="prevQuestion()">Previous</button>
+                    <button class="btn btn-review" onclick="markForReview()">Mark for Review & Next</button>
+                    <button class="btn" onclick="nextQuestion()">Save & Next</button>
+                </div>
+            </div>
+            
+            <div class="palette-panel">
+                <h3 style="margin-top:0;">Question Palette</h3>
+                <div style="display: flex; gap: 15px; font-size: 0.85rem; margin-bottom: 15px; color:#5f6368; flex-wrap: wrap;">
+                    <div style="display:flex; align-items:center; gap:5px;"><div style="width:14px;height:14px;background:var(--primary);border-radius:50%;"></div>Answered</div>
+                    <div style="display:flex; align-items:center; gap:5px;"><div style="width:14px;height:14px;border:1px solid var(--border);border-radius:50%;"></div>Unanswered</div>
+                    <div style="display:flex; align-items:center; gap:5px;"><div style="width:14px;height:14px;background:var(--review);border-radius:50%;"></div>Marked for Review</div>
+                </div>
+                <div class="palette-grid" id="palette-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="result-screen">
+        <header style="margin: -40px -40px 40px -40px;">
+            <h2 class="app-title">Exam Results</h2>
+            <button class="btn btn-outline" onclick="returnToDashboard()">Back to Dashboard</button>
+        </header>
+        
+        <div class="score-card">
+            <h2 style="margin-top:0;">Final Score</h2>
+            <div class="final-score" id="final-score-display">0.00 <span style="font-size: 2rem; color:#5f6368;">/ 100</span></div>
+            <p style="color:#5f6368;">+1 for Correct | -0.25 for Wrong | Cancelled questions ignored</p>
+            
+            <div class="stats-grid">
+                <div class="stat-box bg-correct"><div style="font-size:2.5rem;" id="stat-correct">0</div><div>Correct</div></div>
+                <div class="stat-box bg-wrong"><div style="font-size:2.5rem;" id="stat-wrong">0</div><div>Wrong</div></div>
+                <div class="stat-box bg-skip"><div style="font-size:2.5rem;" id="stat-skip">0</div><div>Skipped</div></div>
+                <div class="stat-box bg-cancelled"><div style="font-size:2.5rem;" id="stat-cancelled">0</div><div>Cancelled</div></div>
+            </div>
+        </div>
+
+        <h2 style="text-align:center; margin-bottom: 30px;">Detailed Analysis</h2>
+        <div class="analysis-container" id="analysis-container"></div>
+    </div>
+
+    <div class="modal-overlay" id="submit-modal">
+        <div class="modal-box">
+            <div class="modal-title">Submit Exam?</div>
+            <div class="modal-text" id="modal-attempt-info">You have answered 0 out of 100 questions.</div>
+            <div class="modal-buttons">
+                <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                <button class="btn-danger" onclick="finishExam()">Yes, Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <h2 style="color:var(--primary);">Loading Mock Test...</h2>
+    </div>
+
+    <script>
+        // ==========================================
+        // CONFIGURATION: ONLY ANALYZED FILES LOADED NOW
+        // ==========================================
+        const availableTests = [
+            "1_analyzed", "1_1_analyzed", "1_2_analyzed", 
+            "2_analyzed", "2_1_analyzed", "2_2_analyzed", "2_3_analyzed", "2_4_analyzed", 
+            "3_analyzed", "3_1_analyzed", "3_2_analyzed", "3_3_analyzed", "3_4_analyzed", 
+            "4_analyzed", "4_1_analyzed", "4_2_analyzed", "4_3_analyzed", "4_4_analyzed", "4_5_analyzed", "4_6_analyzed", "4_7_analyzed", "4_8_analyzed", "4_9_analyzed", 
+            "5_analyzed", "5_1_analyzed", "5_2_analyzed", "5_3_analyzed", "5_4_analyzed"
+        ];
+
+        // Global State Variables
+        let examData = [];
+        let currentIndex = 0;
+        let userAnswers = [];
+        let reviewMarks = []; 
+        let timeLeft = 3600; 
+        let timerInterval;
+        let activeTestId = ""; 
+
+        window.onload = function() {
+            renderDashboard();
+        };
+
+        function renderDashboard() {
+            const grid = document.getElementById('test-grid');
+            grid.innerHTML = '';
+            
+            const history = JSON.parse(localStorage.getItem('mpscHistory')) || {};
+            
+            availableTests.forEach(testId => {
+                // Formatting display name: '1_1_analyzed' -> '1.1'
+                let displayName = testId.replace('_analyzed', '').replace('_', '.');
+                let badgeHTML = '';
+                
+                if (history[testId]) {
+                    badgeHTML = `
+                        <div class="history-badge">
+                            ✅ Score: ${history[testId].score} &nbsp;|&nbsp; 📅 ${history[testId].date}
+                        </div>
+                    `;
+                }
+
+                grid.innerHTML += `
+                    <div class="test-card" onclick="loadTestFile('${testId}', '${displayName}')">
+                        <div>
+                            <div class="test-icon">📄</div>
+                            <div class="test-title">Mock Test ${displayName}</div>
+                            <div class="test-meta">100 Questions • 60 Mins</div>
+                        </div>
+                        ${badgeHTML}
+                    </div>
+                `;
+            });
+        }
+
+        function loadTestFile(testId, displayName) {
+            activeTestId = testId; 
+            document.getElementById('dashboard-screen').style.display = 'none';
+            document.getElementById('loading-overlay').style.display = 'flex';
+            
+            const script = document.createElement('script');
+            // testId is already in the correct format, e.g., '1_analyzed'
+            script.src = `mock_test_${testId}.js`; 
+            
+            script.onload = () => {
+                try {
+                    // THE FIX: eval() safely reads the const variable without breaking
+                    examData = eval(`mockTestData${testId}`);
+                } catch(e) {
+                    console.error("Evaluation error:", e);
+                    examData = null;
+                }
+                
+                if(!examData) {
+                    alert("Data error inside the file. Ensure the file has valid JSON data.");
+                    returnToDashboard();
+                    return;
+                }
+
+                document.getElementById('active-test-title').innerText = `Mock Test ${displayName}`;
+                startExamEngine();
+            };
+            
+            script.onerror = () => {
+                alert(`Error: Make sure mock_test_${testId}.js is inside this folder!`);
+                returnToDashboard();
+            };
+            
+            document.body.appendChild(script);
+        }
+
+        function startExamEngine() {
+            currentIndex = 0;
+            userAnswers = new Array(examData.length).fill(null);
+            reviewMarks = new Array(examData.length).fill(false); 
+            timeLeft = 3600;
+            
+            document.getElementById('loading-overlay').style.display = 'none';
+            document.getElementById('exam-screen').style.display = 'flex';
+            
+            generatePalette();
+            loadQuestion(0);
+            startTimer();
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                let m = Math.floor(timeLeft / 60);
+                let s = timeLeft % 60;
+                document.getElementById('timer-display').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+                
+                if (timeLeft <= 0) finishExam(); 
+            }, 1000);
+        }
+
+        function generatePalette() {
+            const grid = document.getElementById('palette-grid');
+            grid.innerHTML = '';
+            for(let i=0; i<examData.length; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'palette-btn';
+                btn.innerText = i + 1;
+                btn.onclick = () => loadQuestion(i);
+                btn.id = `pal-${i}`;
+                grid.appendChild(btn);
+            }
+        }
+
+        function updatePaletteUI() {
+            for(let i=0; i<examData.length; i++) {
+                const btn = document.getElementById(`pal-${i}`);
+                if(!btn) continue;
+                
+                btn.className = 'palette-btn';
+                
+                if(i === currentIndex) btn.classList.add('current');
+                
+                if (reviewMarks[i]) {
+                    btn.classList.add('marked'); 
+                } else if(userAnswers[i] !== null) {
+                    btn.classList.add('attempted'); 
+                }
+            }
+        }
+
+        function loadQuestion(index) {
+            currentIndex = index;
+            const q = examData[index];
+            
+            document.getElementById('q-number').innerText = `Question ${index + 1} of ${examData.length}`;
+            document.getElementById('q-text-mr').innerText = q.question_marathi || "N/A";
+            document.getElementById('q-text-en').innerText = q.question_english || "N/A";
+
+            const optContainer = document.getElementById('options-container');
+            optContainer.innerHTML = '';
+
+            for(let i=0; i<4; i++) {
+                const optNum = i + 1;
+                const btn = document.createElement('button');
+                btn.className = `option-btn ${userAnswers[currentIndex] === optNum ? 'selected' : ''}`;
+                btn.onclick = () => selectOption(optNum);
+                
+                let optMar = (q.options_marathi && q.options_marathi[i]) ? q.options_marathi[i] : "";
+                let optEng = (q.options_english && q.options_english[i]) ? q.options_english[i] : "";
+
+                btn.innerHTML = `
+                    <div class="opt-mr">( ${optNum} ) ${optMar}</div>
+                    <div class="opt-en">${optEng}</div>
+                `;
+                optContainer.appendChild(btn);
+            }
+            updatePaletteUI();
+        }
+
+        function selectOption(optNumber) {
+            userAnswers[currentIndex] = optNumber;
+            reviewMarks[currentIndex] = false; 
+            loadQuestion(currentIndex); 
+        }
+        
+        function markForReview() {
+            reviewMarks[currentIndex] = true;
+            nextQuestion();
+        }
+
+        function prevQuestion() { if(currentIndex > 0) loadQuestion(currentIndex - 1); }
+        function nextQuestion() { if(currentIndex < examData.length - 1) loadQuestion(currentIndex + 1); }
+
+        function confirmSubmit() {
+            let attemptedCount = userAnswers.filter(ans => ans !== null).length;
+            document.getElementById('modal-attempt-info').innerText = `You have answered ${attemptedCount} out of ${examData.length} questions.\n\nAre you sure you want to submit and end the test?`;
+            document.getElementById('submit-modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('submit-modal').style.display = 'none';
+        }
+
+        function finishExam() {
+            document.getElementById('submit-modal').style.display = 'none';
+            clearInterval(timerInterval);
+            document.getElementById('exam-screen').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'block';
+            calculateScore();
+        }
+
+        function calculateScore() {
+            let correct = 0, wrong = 0, skipped = 0, cancelled = 0;
+            let personalErrors = []; // 🔥 THE NEW PERSONAL TRACKER ARRAY
+            
+            const analysisContainer = document.getElementById('analysis-container');
+            analysisContainer.innerHTML = '';
+
+            examData.forEach((q, i) => {
+                let userAns = userAnswers[i];
+                
+                let correctAns = 0;
+                if (q.options_breakdown) {
+                    let correctObj = q.options_breakdown.find(opt => opt.is_correct === true);
+                    if (correctObj) correctAns = correctObj.option_no;
+                } else {
+                    correctAns = q.correct_option_index;
+                    if (correctAns < 4 && correctAns !== 0) correctAns += 1;
+                }
+
+                let statusClass = '';
+                let statusText = '';
+
+                if (correctAns === 0 || correctAns > 4) {
+                    cancelled++;
+                    statusClass = 'cancelled-ans';
+                    statusText = 'Cancelled by MPSC (0 Marks)';
+                } else if (!userAns) {
+                    skipped++;
+                    statusClass = 'skipped-ans';
+                    statusText = `Skipped | Correct was Option ${correctAns}`;
+                } else if (userAns === correctAns) {
+                    correct++;
+                    statusClass = 'correct-ans';
+                    statusText = `✅ Correct | You chose Option ${correctAns}`;
+                } else {
+                    wrong++;
+                    statusClass = 'wrong-ans';
+                    statusText = `❌ Wrong | You chose ${userAns}, Correct was ${correctAns}`;
+                    
+                    // 🔥 TRACKING THE MISTAKE 🔥
+                    personalErrors.push({
+                        test_id: activeTestId.replace('_analyzed', ''), 
+                        q_no: q.q_no || (i + 1),
+                        subject: q.subject || "Unknown",
+                        topic: q.topic || "Unknown",
+                        difficulty: q.difficulty || "Unknown",
+                        trap_detected: q.trap_detected || "None"
+                    });
+                }
+
+                let safeUserText = userAns ? (q.options_english[userAns-1] || "") : "None";
+                let safeCorrectText = (correctAns >= 1 && correctAns <= 4) ? (q.options_english[correctAns-1] || "") : "Cancelled";
+                
+                // Add Trap Badge UI
+                let trapBadge = (q.trap_detected && q.trap_detected !== "None" && q.trap_detected !== "none") 
+                                ? `<span style="background: #fce8e6; color: #d93025; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; margin-left: 10px;">⚠️ Trap: ${q.trap_detected}</span>` : "";
+
+
+                let explanationHTML = "";
+                if (q.explanation_english) {
+                    explanationHTML = `
+                        <div style="margin-top:15px; padding: 15px; background: #f8faff; border-radius: 8px; border-left: 4px solid var(--primary);">
+                            <div style="font-weight:bold; color:var(--primary); margin-bottom:5px;">Analysis (${q.subject} - ${q.topic}):</div>
+                            <div style="font-size:0.95rem; color:#333; margin-bottom: 10px;">${q.explanation_english}</div>
+                            <div style="font-size:0.95rem; color:#555;"><i>${q.explanation_marathi}</i></div>
+                        </div>
+                    `;
+                }
+
+                analysisContainer.innerHTML += `
+                    <div class="analysis-item ${statusClass}">
+                        <div style="font-weight:700; color:#5f6368; margin-bottom:12px; font-size:1.1rem;">
+                            Q${i+1}. ${statusText} ${trapBadge}
+                        </div>
+                        <div style="margin-bottom:12px; font-size:1.05rem;">${q.question_english}</div>
+                        ${userAns ? `<div style="font-size:0.95rem; margin-top:10px; color:#5f6368;"><b>Your Answer:</b> ${safeUserText}</div>` : ''}
+                        ${(correctAns >= 1 && correctAns <= 4) ? `<div style="font-size:0.95rem; margin-top:5px; color:var(--correct);"><b>Correct Answer:</b> ${safeCorrectText}</div>` : ''}
+                        ${explanationHTML}
+                    </div>
+                `;
+            });
+
+            let finalScore = correct - (wrong * 0.25);
+            if (finalScore < 0) finalScore = 0;
+            let finalScoreText = finalScore.toFixed(2);
+            
+            document.getElementById('final-score-display').innerHTML = `${finalScoreText} <span style="font-size: 2rem; color:#5f6368;">/ ${examData.length}</span>`;
+            document.getElementById('stat-correct').innerText = correct;
+            document.getElementById('stat-wrong').innerText = wrong;
+            document.getElementById('stat-skip').innerText = skipped;
+            document.getElementById('stat-cancelled').innerText = cancelled;
+            
+            let history = JSON.parse(localStorage.getItem('mpscHistory')) || {};
+            let today = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+            
+            history[activeTestId] = {
+                score: finalScoreText,
+                date: today
+            };
+            localStorage.setItem('mpscHistory', JSON.stringify(history));
+
+            // 🔥 SAVING PERSONAL ERRORS TO MEMORY 🔥
+            if (personalErrors.length > 0) {
+                let existingErrors = JSON.parse(localStorage.getItem('mpsc_error_log')) || [];
+                existingErrors = existingErrors.concat(personalErrors);
+                localStorage.setItem('mpsc_error_log', JSON.stringify(existingErrors));
+                console.log(`Saved ${personalErrors.length} personal mistakes to profile!`);
+            }
+        }
+
+        function returnToDashboard() {
+            document.getElementById('result-screen').style.display = 'none';
+            document.getElementById('loading-overlay').style.display = 'none';
+            document.getElementById('dashboard-screen').style.display = 'block';
+            
+            renderDashboard();
+        }
+    </script>
+</body>
+</html>
