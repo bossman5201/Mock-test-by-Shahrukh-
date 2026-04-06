@@ -108,6 +108,45 @@
         .modal-title { font-size: 1.5rem; font-weight: bold; margin-bottom: 15px; color: var(--text); }
         .modal-text { font-size: 1.1rem; color: #5f6368; margin-bottom: 25px; line-height: 1.5; white-space: pre-wrap; }
         .modal-buttons { display: flex; gap: 15px; justify-content: center; }
+
+        /* =========================================
+           📱 MOBILE RESPONSIVE DESIGN
+           ========================================= */
+        @media (max-width: 768px) {
+            body { padding: 0; height: auto; overflow: auto; } /* Let the whole phone screen scroll naturally */
+            header { flex-direction: column; gap: 15px; text-align: center; margin-bottom: 20px; padding: 15px; }
+            .app-title { font-size: 1.4rem; }
+            
+            #dashboard-screen { padding: 15px; }
+            header[style*="margin: -40px"] { margin: -15px -15px 20px -15px !important; }
+            
+            .exam-container { flex-direction: column; overflow: visible; height: auto; }
+            .question-panel { flex: none; overflow-y: visible; padding: 10px; width: 100%; }
+            .question-card { padding: 0 15px 20px 15px; }
+            
+            .q-header { flex-direction: column; align-items: flex-start; gap: 15px; position: static; }
+            .top-nav { width: 100%; justify-content: space-between; overflow-x: auto; padding-bottom: 5px; }
+            .top-nav .btn-sm { white-space: nowrap; font-size: 0.85rem; padding: 8px 12px; }
+            
+            .q-text-container { grid-template-columns: 1fr; gap: 15px; } /* Stack English under Marathi */
+            .options-grid { grid-template-columns: 1fr; } /* Single column for options */
+            
+            .nav-buttons { flex-direction: column; gap: 10px; }
+            .nav-buttons .btn { width: 100%; text-align: center; }
+            
+            .palette-panel { max-width: 100%; min-width: 100%; border-left: none; border-top: 2px solid var(--border); margin-top: 20px; overflow-y: visible; flex: none; padding: 15px; }
+            .palette-grid { grid-template-columns: repeat(8, 1fr); gap: 8px; }
+            
+            #result-screen { padding: 15px; }
+            .score-card { padding: 20px; }
+            .final-score { font-size: 3.5rem; }
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: 15px; } /* 2x2 grid for stats instead of 4 in a row */
+            .analysis-item { padding: 15px; }
+        }
+        
+        @media (max-width: 480px) {
+            .palette-grid { grid-template-columns: repeat(6, 1fr); }
+        }
     </style>
 </head>
 <body>
@@ -219,9 +258,6 @@
     </div>
 
     <script>
-        // ==========================================
-        // CONFIGURATION: ONLY ANALYZED FILES LOADED NOW
-        // ==========================================
         const availableTests = [
             "1_analyzed", "1_1_analyzed", "1_2_analyzed", 
             "2_analyzed", "2_1_analyzed", "2_2_analyzed", "2_3_analyzed", "2_4_analyzed", 
@@ -230,7 +266,6 @@
             "5_analyzed", "5_1_analyzed", "5_2_analyzed", "5_3_analyzed", "5_4_analyzed"
         ];
 
-        // Global State Variables
         let examData = [];
         let currentIndex = 0;
         let userAnswers = [];
@@ -250,7 +285,6 @@
             const history = JSON.parse(localStorage.getItem('mpscHistory')) || {};
             
             availableTests.forEach(testId => {
-                // Formatting display name: '1_1_analyzed' -> '1.1'
                 let displayName = testId.replace('_analyzed', '').replace('_', '.');
                 let badgeHTML = '';
                 
@@ -281,12 +315,10 @@
             document.getElementById('loading-overlay').style.display = 'flex';
             
             const script = document.createElement('script');
-            // testId is already in the correct format, e.g., '1_analyzed'
             script.src = `mock_test_${testId}.js`; 
             
             script.onload = () => {
                 try {
-                    // THE FIX: eval() safely reads the const variable without breaking
                     examData = eval(`mockTestData${testId}`);
                 } catch(e) {
                     console.error("Evaluation error:", e);
@@ -430,21 +462,27 @@
 
         function calculateScore() {
             let correct = 0, wrong = 0, skipped = 0, cancelled = 0;
-            let personalErrors = []; // 🔥 THE NEW PERSONAL TRACKER ARRAY
+            let personalErrors = []; 
             
             const analysisContainer = document.getElementById('analysis-container');
             analysisContainer.innerHTML = '';
 
             examData.forEach((q, i) => {
                 let userAns = userAnswers[i];
-                
                 let correctAns = 0;
-                if (q.options_breakdown) {
-                    let correctObj = q.options_breakdown.find(opt => opt.is_correct === true);
-                    if (correctObj) correctAns = correctObj.option_no;
-                } else {
-                    correctAns = q.correct_option_index;
-                    if (correctAns < 4 && correctAns !== 0) correctAns += 1;
+
+                if (q.options_breakdown && Array.isArray(q.options_breakdown)) {
+                    let correctIndex = q.options_breakdown.findIndex(opt => opt.is_correct === true || opt.is_correct === "true");
+                    if (correctIndex !== -1) {
+                        correctAns = correctIndex + 1; 
+                    }
+                }
+
+                if (!correctAns || isNaN(correctAns)) {
+                    let parsedIdx = parseInt(q.correct_option_index);
+                    if (!isNaN(parsedIdx)) {
+                        correctAns = parsedIdx;
+                    }
                 }
 
                 let statusClass = '';
@@ -467,7 +505,6 @@
                     statusClass = 'wrong-ans';
                     statusText = `❌ Wrong | You chose ${userAns}, Correct was ${correctAns}`;
                     
-                    // 🔥 TRACKING THE MISTAKE 🔥
                     personalErrors.push({
                         test_id: activeTestId.replace('_analyzed', ''), 
                         q_no: q.q_no || (i + 1),
@@ -478,21 +515,19 @@
                     });
                 }
 
-                let safeUserText = userAns ? (q.options_english[userAns-1] || "") : "None";
-                let safeCorrectText = (correctAns >= 1 && correctAns <= 4) ? (q.options_english[correctAns-1] || "") : "Cancelled";
+                let safeUserText = userAns ? ((q.options_english && q.options_english[userAns-1]) || `Option ${userAns}`) : "None";
+                let safeCorrectText = (correctAns >= 1 && correctAns <= 4) ? ((q.options_english && q.options_english[correctAns-1]) || `Option ${correctAns}`) : "Cancelled";
                 
-                // Add Trap Badge UI
                 let trapBadge = (q.trap_detected && q.trap_detected !== "None" && q.trap_detected !== "none") 
                                 ? `<span style="background: #fce8e6; color: #d93025; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; margin-left: 10px;">⚠️ Trap: ${q.trap_detected}</span>` : "";
-
 
                 let explanationHTML = "";
                 if (q.explanation_english) {
                     explanationHTML = `
                         <div style="margin-top:15px; padding: 15px; background: #f8faff; border-radius: 8px; border-left: 4px solid var(--primary);">
-                            <div style="font-weight:bold; color:var(--primary); margin-bottom:5px;">Analysis (${q.subject} - ${q.topic}):</div>
+                            <div style="font-weight:bold; color:var(--primary); margin-bottom:5px;">Analysis (${q.subject || "Topic"} - ${q.topic || "Subtopic"}):</div>
                             <div style="font-size:0.95rem; color:#333; margin-bottom: 10px;">${q.explanation_english}</div>
-                            <div style="font-size:0.95rem; color:#555;"><i>${q.explanation_marathi}</i></div>
+                            <div style="font-size:0.95rem; color:#555;"><i>${q.explanation_marathi || ""}</i></div>
                         </div>
                     `;
                 }
@@ -502,7 +537,7 @@
                         <div style="font-weight:700; color:#5f6368; margin-bottom:12px; font-size:1.1rem;">
                             Q${i+1}. ${statusText} ${trapBadge}
                         </div>
-                        <div style="margin-bottom:12px; font-size:1.05rem;">${q.question_english}</div>
+                        <div style="margin-bottom:12px; font-size:1.05rem;">${q.question_english || q.question_marathi || ""}</div>
                         ${userAns ? `<div style="font-size:0.95rem; margin-top:10px; color:#5f6368;"><b>Your Answer:</b> ${safeUserText}</div>` : ''}
                         ${(correctAns >= 1 && correctAns <= 4) ? `<div style="font-size:0.95rem; margin-top:5px; color:var(--correct);"><b>Correct Answer:</b> ${safeCorrectText}</div>` : ''}
                         ${explanationHTML}
@@ -529,12 +564,10 @@
             };
             localStorage.setItem('mpscHistory', JSON.stringify(history));
 
-            // 🔥 SAVING PERSONAL ERRORS TO MEMORY 🔥
             if (personalErrors.length > 0) {
                 let existingErrors = JSON.parse(localStorage.getItem('mpsc_error_log')) || [];
                 existingErrors = existingErrors.concat(personalErrors);
                 localStorage.setItem('mpsc_error_log', JSON.stringify(existingErrors));
-                console.log(`Saved ${personalErrors.length} personal mistakes to profile!`);
             }
         }
 
@@ -542,7 +575,6 @@
             document.getElementById('result-screen').style.display = 'none';
             document.getElementById('loading-overlay').style.display = 'none';
             document.getElementById('dashboard-screen').style.display = 'block';
-            
             renderDashboard();
         }
     </script>
