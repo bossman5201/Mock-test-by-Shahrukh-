@@ -5,38 +5,65 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MPSC Master Analytics</title>
     <style>
-        :root { --primary: #1a73e8; --bg: #f8f9fa; --card: #ffffff; --text: #202124; --border: #dadce0; --correct: #188038;}
+        :root { --primary: #1a73e8; --bg: #f8f9fa; --card: #ffffff; --text: #202124; --border: #dadce0; --correct: #188038; --wrong: #d93025;}
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); padding: 40px; }
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
         h1 { color: var(--primary); margin: 0; }
         .btn { background: var(--primary); color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; text-decoration: none; font-weight: bold; }
         
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-        .card { background: var(--card); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid var(--border); }
-        .card h2 { margin-top: 0; font-size: 1.2rem; color: #5f6368; border-bottom: 2px solid var(--bg); padding-bottom: 10px; }
+        .card { background: var(--card); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid var(--border); margin-bottom: 30px;}
+        .card h2 { margin-top: 0; font-size: 1.2rem; color: #5f6368; border-bottom: 2px solid var(--bg); padding-bottom: 10px; margin-bottom: 20px;}
+        .card h3 { font-size: 1.1rem; color: var(--text); margin-top: 0; margin-bottom: 15px;}
         
-        .stat-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f3f4; }
+        .stat-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f3f4; align-items: center; }
         .stat-row:last-child { border-bottom: none; }
         .stat-bar-container { width: 100%; background: #e8eaed; border-radius: 4px; height: 8px; margin-top: 8px; overflow: hidden; }
         .stat-bar { height: 100%; background: var(--primary); }
+        .stat-bar.danger { background: var(--wrong); }
+        
+        .yield-badge { background: #e8f0fe; color: var(--primary); padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85rem; }
+        .highlight-box { background: #fff4f4; border: 1px solid #fce8e6; border-left: 4px solid var(--wrong); padding: 15px; margin-bottom: 15px; border-radius: 6px; }
+        
+        .search-box { display: flex; gap: 10px; margin-bottom: 20px; }
+        input[type="text"] { flex: 1; padding: 12px; border: 1px solid var(--border); border-radius: 6px; }
+
+        .scrollable-list::-webkit-scrollbar { width: 8px; }
+        .scrollable-list::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        .scrollable-list::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+        .scrollable-list::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+
+        .clickable-row { cursor: pointer; transition: 0.2s; border-radius: 6px; padding: 12px 10px; border-bottom: 1px solid #f1f3f4; }
+        .clickable-row:hover { background: #f0f4f8; border-color: transparent; }
+        .q-mini-card { background: white; border: 1px solid var(--border); padding: 15px; border-radius: 6px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
+        /* =========================================
+           📱 MOBILE RESPONSIVE DESIGN (ANALYTICS)
+           ========================================= */
+        @media (max-width: 768px) {
+            body { padding: 15px; }
+            header { flex-direction: column; text-align: center; gap: 15px; }
+            .grid { grid-template-columns: 1fr; gap: 20px; } 
+            .card { padding: 20px; margin-bottom: 20px; }
+            .search-box { flex-direction: column; }
+            .clickable-row { flex-direction: column; align-items: flex-start !important; gap: 10px; }
+            .clickable-row > div:last-child { width: 100%; justify-content: space-between; }
+        }
     </style>
 
     <script src="mock_test_1_analyzed.js"></script>
     <script src="mock_test_1_1_analyzed.js"></script>
     <script src="mock_test_1_2_analyzed.js"></script>
-    
     <script src="mock_test_2_analyzed.js"></script>
     <script src="mock_test_2_1_analyzed.js"></script>
     <script src="mock_test_2_2_analyzed.js"></script>
     <script src="mock_test_2_3_analyzed.js"></script>
     <script src="mock_test_2_4_analyzed.js"></script>
-    
     <script src="mock_test_3_analyzed.js"></script>
     <script src="mock_test_3_1_analyzed.js"></script>
     <script src="mock_test_3_2_analyzed.js"></script>
     <script src="mock_test_3_3_analyzed.js"></script>
     <script src="mock_test_3_4_analyzed.js"></script>
-    
     <script src="mock_test_4_analyzed.js"></script>
     <script src="mock_test_4_1_analyzed.js"></script>
     <script src="mock_test_4_2_analyzed.js"></script>
@@ -47,152 +74,404 @@
     <script src="mock_test_4_7_analyzed.js"></script>
     <script src="mock_test_4_8_analyzed.js"></script>
     <script src="mock_test_4_9_analyzed.js"></script>
-    
     <script src="mock_test_5_analyzed.js"></script>
     <script src="mock_test_5_1_analyzed.js"></script>
     <script src="mock_test_5_2_analyzed.js"></script>
     <script src="mock_test_5_3_analyzed.js"></script>
     <script src="mock_test_5_4_analyzed.js"></script>
-
 </head>
 <body>
 
     <header>
-        <h1>Data-Driven Insights Dashboard</h1>
-        <a href="index.html" class="btn">Back to Tests</a>
+        <h1>MPSC Pro Analytics</h1>
+        <a href="index.html" class="btn" style="background: #34a853;">Back to Tests</a>
     </header>
 
-    <div class="card" style="margin-bottom: 30px; border-color: var(--primary); box-shadow: 0 4px 15px rgba(26, 115, 232, 0.15);">
-        <h2 style="color: var(--primary);">🔍 Predictive Search Engine (Option-Recycling Scanner)</h2>
-        <p style="color: #5f6368; font-size: 0.95rem; margin-bottom: 15px;">Search any keyword to find every question, trap, and hidden option fact associated with it across all 2,800 questions.</p>
-        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-            <input type="text" id="search-input" placeholder="Type a keyword (e.g., 'Ambedkar', 'Article 14', 'Panchayat')..." style="flex: 1; padding: 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem;">
+    <div class="card" style="border-color: var(--wrong); box-shadow: 0 4px 15px rgba(217, 48, 37, 0.1);">
+        <h2 style="color: var(--wrong);">🔥 Your Personal Weakness Profile</h2>
+        <p style="color: #5f6368; font-size: 0.95rem; margin-top: -10px; margin-bottom: 20px;">Analyzed directly from the questions you got wrong in your mock tests.</p>
+        <div id="personal-profile-container">
+            <div style="text-align:center; padding: 20px; color:#5f6368;">Loading your personal data...</div>
+        </div>
+    </div>
+
+    <div class="card" style="border-left: 6px solid #fbbc04;">
+        <h2 style="color: #b06000;">🎯 Global Subtopic High-Yield Priority List</h2>
+        <p style="color: #5f6368; margin-top: -10px;">Click on any topic row to instantly expand and view all the questions and options inside that category.</p>
+        
+        <div id="subtopic-list-container">
+            <div style="text-align: center; padding: 30px; color: #888;">Scanning all questions to build blueprint...</div>
+        </div>
+    </div>
+
+    <div class="card" style="border-color: var(--primary);">
+        <h2 style="color: var(--primary);">🔍 Keyword Scanner (Predictive Guessing)</h2>
+        <div class="search-box">
+            <input type="text" id="search-input" placeholder="Search a keyword (e.g. 'Governor', 'NITI', 'Gandhi')...">
             <button class="btn" onclick="runSearch()">Deep Scan</button>
         </div>
-        <div id="search-results" style="max-height: 500px; overflow-y: auto; padding-right: 10px;"></div>
+        <div id="search-results" style="max-height: 400px; overflow-y: auto;"></div>
     </div>
 
     <div class="grid">
-        <div class="card">
-            <h2>1. Exact Subject Weightage</h2>
-            <div id="subject-weightage-container">Loading...</div>
+        <div class="card" style="margin-bottom: 0;">
+            <h2>Global Subject Weightage</h2>
+            <div id="global-subjects">Loading...</div>
         </div>
-
-        <div class="card">
-            <h2>3. Examiner's Trap Profile</h2>
-            <div id="trap-profile-container">Loading...</div>
-        </div>
-
-        <div class="card" style="grid-column: span 2;">
-            <h2>2. High-Yield Micro-Topics (Top 10 Most Asked)</h2>
-            <div id="topic-heatmap-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">Loading...</div>
+        <div class="card" style="margin-bottom: 0;">
+            <h2>Global Examiner's Trap Profile</h2>
+            <div id="global-traps">Loading...</div>
         </div>
     </div>
 
     <script>
-        // We make allMPSCData global so the search bar can access it!
         window.allMPSCData = [];
 
-        window.onload = function() {
-            window.allMPSCData = [
-                ...(typeof mockTestData1_analyzed !== 'undefined' ? mockTestData1_analyzed : []),
-                ...(typeof mockTestData1_1_analyzed !== 'undefined' ? mockTestData1_1_analyzed : []),
-                ...(typeof mockTestData1_2_analyzed !== 'undefined' ? mockTestData1_2_analyzed : []),
-                ...(typeof mockTestData2_analyzed !== 'undefined' ? mockTestData2_analyzed : []),
-                ...(typeof mockTestData2_1_analyzed !== 'undefined' ? mockTestData2_1_analyzed : []),
-                ...(typeof mockTestData2_2_analyzed !== 'undefined' ? mockTestData2_2_analyzed : []),
-                ...(typeof mockTestData2_3_analyzed !== 'undefined' ? mockTestData2_3_analyzed : []),
-                ...(typeof mockTestData2_4_analyzed !== 'undefined' ? mockTestData2_4_analyzed : []),
-                ...(typeof mockTestData3_analyzed !== 'undefined' ? mockTestData3_analyzed : []),
-                ...(typeof mockTestData3_1_analyzed !== 'undefined' ? mockTestData3_1_analyzed : []),
-                ...(typeof mockTestData3_2_analyzed !== 'undefined' ? mockTestData3_2_analyzed : []),
-                ...(typeof mockTestData3_3_analyzed !== 'undefined' ? mockTestData3_3_analyzed : []),
-                ...(typeof mockTestData3_4_analyzed !== 'undefined' ? mockTestData3_4_analyzed : []),
-                ...(typeof mockTestData4_analyzed !== 'undefined' ? mockTestData4_analyzed : []),
-                ...(typeof mockTestData4_1_analyzed !== 'undefined' ? mockTestData4_1_analyzed : []),
-                ...(typeof mockTestData4_2_analyzed !== 'undefined' ? mockTestData4_2_analyzed : []),
-                ...(typeof mockTestData4_3_analyzed !== 'undefined' ? mockTestData4_3_analyzed : []),
-                ...(typeof mockTestData4_4_analyzed !== 'undefined' ? mockTestData4_4_analyzed : []),
-                ...(typeof mockTestData4_5_analyzed !== 'undefined' ? mockTestData4_5_analyzed : []),
-                ...(typeof mockTestData4_6_analyzed !== 'undefined' ? mockTestData4_6_analyzed : []),
-                ...(typeof mockTestData4_7_analyzed !== 'undefined' ? mockTestData4_7_analyzed : []),
-                ...(typeof mockTestData4_8_analyzed !== 'undefined' ? mockTestData4_8_analyzed : []),
-                ...(typeof mockTestData4_9_analyzed !== 'undefined' ? mockTestData4_9_analyzed : []),
-                ...(typeof mockTestData5_analyzed !== 'undefined' ? mockTestData5_analyzed : []),
-                ...(typeof mockTestData5_1_analyzed !== 'undefined' ? mockTestData5_1_analyzed : []),
-                ...(typeof mockTestData5_2_analyzed !== 'undefined' ? mockTestData5_2_analyzed : []),
-                ...(typeof mockTestData5_3_analyzed !== 'undefined' ? mockTestData5_3_analyzed : []),
-                ...(typeof mockTestData5_4_analyzed !== 'undefined' ? mockTestData5_4_analyzed : [])
+        function normalizeTrap(rawTrap) {
+            if (!rawTrap) return "No Trap / Direct Question";
+            let t = rawTrap.toString().toUpperCase();
+            if (t === "NONE" || t === "NO TRAP" || t.includes("STRAIGHTFORWARD")) return "No Trap / Direct Question";
+            if (t.includes("FACTUAL") || t.includes("SWAP") || t.includes("INTERCHANGE") || t.includes("DATA")) return "Factual Swap / Data Manipulation";
+            if (t.includes("EXTREME") || t.includes("ONLY") || t.includes("ALWAYS") || t.includes("ALL") || t.includes("NEVER")) return "Extreme Words (Only, Always, All)";
+            if (t.includes("CHRONOLOGY") || t.includes("DATE") || t.includes("YEAR") || t.includes("SEQUENCE")) return "Chronology & Date Trap";
+            if (t.includes("CONCEPT") || t.includes("DEFINITION") || t.includes("PRINCIPLE")) return "Concept/Definition Swap";
+            if (t.includes("NEGATIVE") || t.includes(" NOT ") || t.includes("INCORRECT") || t.includes("FALSE")) return "Negative Phrasing (Not/Incorrect)";
+            if (t.includes("DISTRACTOR") || t.includes("IRRELEVANT") || t.includes("OUT OF CONTEXT")) return "Irrelevant Distractor Options";
+            if (t.includes("INCOMPLETE") || t.includes("PARTIAL") || t.includes("HALF")) return "Half-Truth / Incomplete Statement";
+            return "Miscellaneous Tricky Phrasing";
+        }
+
+        function normalizeSubject(rawSub) {
+            let s = (rawSub || "").toString().toUpperCase();
+            if (s.includes("POLITY") || s.includes("CONSTITUTION")) return "Polity";
+            if (s.includes("HIST")) return "History";
+            if (s.includes("GEO")) return "Geography";
+            if (s.includes("ECON")) return "Economy";
+            if (s.includes("SCI")) return "Science & Tech";
+            if (s.includes("CURR") || s.includes("AFFAIR")) return "Current Affairs";
+            if (s.includes("LAW") || s.includes("ACT") || s.includes("PENAL") || s.includes("PROCEDURE")) return "Law";
+            if (s.includes("MATH") || s.includes("REASON") || s.includes("APTITUDE")) return "Math & Reasoning";
+            if (s.includes("MARATHI")) return "Marathi Grammar & Comp";
+            if (s.includes("ENGLISH")) return "English Grammar & Comp";
+            if (s.includes("COMPREHENSION") || s.includes("PASSAGE")) return "Reading Comprehension";
+            return "General Awareness";
+        }
+
+        function normalizeTopic(rawTopic, rawSub) {
+            let t = (rawTopic || "").toString().toUpperCase();
+            let s = (rawSub || "").toString().toUpperCase();
+            let combined = t + " " + s;
+
+            const buckets = [
+                { words: ["CONSTITUTION", "ARTICLE", "AMENDMENT", "FUNDAMENTAL", "DIRECTIVE", "SCHEDULE"], name: "Constitution & Articles" },
+                { words: ["PANCHAYAT", "GRAM", "ZILLA", "MUNICIPAL", "LOCAL", "SARPANCH"], name: "Local Self Govt (Panchayat Raj)" },
+                { words: ["PRESIDENT", "GOVERNOR", "MINISTER", "PARLIAMENT", "LEGISLATURE", "ASSEMBLY", "CM", "PM"], name: "Executive & Legislature" },
+                { words: ["JUDICIARY", "COURT", "SUPREME", "HIGH", "JUDGE"], name: "Judiciary System" },
+                { words: ["ELECTION", "COMMISSION", "UPSC", "MPSC", "CAG"], name: "Elections & Commissions" },
+                { words: ["1857", "REVOLT", "MUTINY", "COMPANY"], name: "Revolt of 1857 & Company Rule" },
+                { words: ["CONGRESS", "NATIONAL MOVEMENT", "FREEDOM", "GANDHI", "MODERATE", "EXTREMIST", "REVOLUTION", "SATYAGRAHA"], name: "Indian National Movement" },
+                { words: ["REFORMER", "SAMAJ", "PHULE", "AMBEDKAR", "AGARKAR", "SHAHU", "KARVE", "SATYASHODHAK"], name: "Social & Religious Reformers" },
+                { words: ["PEASANT", "WORKER", "FARMER", "TRIBAL", "UPRISING", "COMMUNIST"], name: "Peasant, Worker & Tribal Movements" },
+                { words: ["PRESS", "EDUCATION", "BRITISH RULE", "ACT", "CHARTER", "COUNCIL"], name: "British Administration & Acts" },
+                { words: ["ANCIENT", "MEDIEVAL", "MARATHA", "SHIVAJI", "PESHWA", "INDUS", "MUGHAL", "SULTANATE"], name: "Ancient/Medieval & Maratha History" },
+                { words: ["RIVER", "DRAINAGE", "GODAVARI", "KRISHNA", "BHIMA", "TAPI", "NARMADA"], name: "River Systems & Drainage" },
+                { words: ["MOUNTAIN", "PEAK", "SAHYADRI", "GHAT", "PHYSICAL", "PLATEAU", "COAST"], name: "Physical Geography of Maharashtra" },
+                { words: ["CLIMATE", "MONSOON", "RAINFALL", "TEMPERATURE"], name: "Climate & Weather" },
+                { words: ["SOIL", "AGRICULTURE", "CROP", "FARMING", "IRRIGATION"], name: "Agriculture, Soils & Irrigation" },
+                { words: ["MINERAL", "ORE", "COAL", "IRON", "POWER", "ENERGY", "MANGANESE", "BAUXITE"], name: "Minerals & Energy Resources" },
+                { words: ["INDUSTRY", "TRANSPORT", "HIGHWAY", "PORT", "RAILWAY"], name: "Industries & Transport" },
+                { words: ["DEMOGRAPHY", "POPULATION", "CENSUS", "LITERACY", "SEX RATIO", "MIGRATION", "SC/ST", "DISTRICT POPULATION"], name: "Demography & Census" },
+                { words: ["PLANNING", "FIVE YEAR", "NITI", "PLAN"], name: "Economic Planning & NITI Aayog" },
+                { words: ["BANK", "MONETARY", "RBI", "INFLATION", "CREDIT", "CURRENCY"], name: "Banking & Monetary Policy" },
+                { words: ["BUDGET", "FISCAL", "TAX", "DEFICIT", "FINANCE", "GST"], name: "Public Finance & Taxation" },
+                { words: ["POVERTY", "UNEMPLOYMENT", "INEQUALITY", "CHALLENGES"], name: "Poverty, Unemployment & Economy Challenges" },
+                { words: ["TRADE", "BOP", "FDI", "EXPORT", "IMPORT", "WTO"], name: "International Trade & BoP" },
+                { words: ["SCHEME", "YOJANA", "PROGRAMME", "MISSION", "DBT"], name: "Govt Schemes & Welfare Programs" },
+                { words: ["DISEASE", "INFECTION", "VIRUS", "BACTERIA", "HEALTH", "VITAMIN", "NUTRITION", "VACCINE", "IMMUNITY"], name: "Human Health, Diseases & Nutrition" },
+                { words: ["CELL", "BLOOD", "ORGAN", "SYSTEM", "REPRODUCTION", "GENETIC", "EYE", "RECEPTOR", "BRAIN", "HEART"], name: "Human Anatomy & Biology" },
+                { words: ["PLANT", "BOTANY", "PHOTOSYNTHESIS", "CLASSIFICATION", "KINGDOM", "FLOWER"], name: "Plant Kingdom & Botany" },
+                { words: ["PHYSICS", "MOTION", "LIGHT", "SOUND", "ELECTRICITY", "MAGNETISM", "FORCE", "WORK", "OPTICS", "HEAT"], name: "Physics Principles" },
+                { words: ["CHEMISTRY", "ACID", "BASE", "METAL", "REACTION", "ATOM", "MOLECULE", "PERIODIC", "CARBON", "ALLOY"], name: "Chemistry Principles" },
+                { words: ["SPACE", "ISRO", "SATELLITE", "DEFENCE", "MISSILE", "TECHNOLOGY", "COMPUTER", "IT", "APACHE", "DRDO"], name: "Science & Technology Advancements" },
+                { words: ["PENAL CODE", "IPC", "OFFENCE", "PUNISHMENT", "MURDER", "THEFT", "PROPERTY", "UNLAWFUL ASSEMBLY"], name: "Indian Penal Code (IPC)" },
+                { words: ["CRIMINAL PROCEDURE", "CRPC", "ARREST", "BAIL", "WARRANT", "COURT", "POLICE", "CHARGE"], name: "Criminal Procedure Code (CrPC)" },
+                { words: ["EVIDENCE ACT", "EVIDENCE", "DOCUMENT", "WITNESS", "PRESUMPTION", "JUDICIAL NOTICE", "FACT"], name: "Indian Evidence Act" },
+                { words: ["MAHARASHTRA POLICE ACT", "COMPENSATION", "INSPECTOR"], name: "Maharashtra Police Act" },
+                { words: ["SERIES", "NUMBER", "ALPHABET", "CODING", "DECODING"], name: "Series & Coding-Decoding" },
+                { words: ["DIRECTION", "DISTANCE", "BLOOD RELATION"], name: "Directions & Blood Relations" },
+                { words: ["SYLLOGISM", "STATEMENT", "CONCLUSION", "ASSUMPTION", "ARGUMENT"], name: "Logical Reasoning (Syllogisms)" },
+                { words: ["TIME", "WORK", "SPEED", "DISTANCE", "TRAIN", "BOAT"], name: "Time, Speed & Work" },
+                { words: ["PERCENTAGE", "PROFIT", "LOSS", "RATIO", "PROPORTION", "AVERAGE", "AGE", "FRACTION", "EQUATION"], name: "Basic Numeracy (Ages, Fractions, Averages)" },
+                { words: ["DATA", "GRAPH", "PIE", "CHART", "TABLE", "SUFFICIENCY"], name: "Data Interpretation & Sufficiency" },
+                { words: ["PUZZLE", "SEATING", "ARRANGEMENT", "CUBE", "DICE", "SPATIAL", "FIGURE"], name: "Puzzles & Spatial Reasoning" },
+                { words: ["PASSAGE", "COMPREHENSION", "INFERENCE", "THEME", "TONE", "IDEALISM", "PSYCHOLOGY"], name: "Reading Comprehension Analysis" },
+                { words: ["GRAMMAR", "TENSE", "VOICE", "SPEECH", "CLAUSE", "PREPOSITION", "ARTICLE"], name: "Grammar Rules" },
+                { words: ["VOCABULARY", "SYNONYM", "ANTONYM", "IDIOM", "PHRASE", "WORD", "SPELLING"], name: "Vocabulary & Idioms" },
+                { words: ["शुद्धलेखन", "विशेषणे", "नामे", "वाक्यप्रचार", "म्हणी", "समानार्थी", "विरुद्धार्थी", "प्रयोग", "समास", "अलंकार", "सर्वनाम"], name: "Marathi Grammar Rules" },
+                { words: ["AWARD", "PRIZE", "SPORTS", "OLYMPIC", "BOOK", "AUTHOR", "APPOINTMENT", "INDEX", "RANK", "SUMMIT", "OPERATION DEVI SHAKTI"], name: "Current Affairs (Awards, Events)" }
             ];
 
-            const totalQuestions = window.allMPSCData.length;
+            for (let bucket of buckets) {
+                for (let word of bucket.words) {
+                    if (combined.includes(word)) return bucket.name;
+                }
+            }
+            let cleanSub = normalizeSubject(s);
+            return `Miscellaneous Topics (${cleanSub})`;
+        }
 
-            if (totalQuestions === 0) {
-                document.getElementById('subject-weightage-container').innerHTML = "No analyzed data files found in this folder.";
-                document.getElementById('trap-profile-container').innerHTML = "No analyzed data files found in this folder.";
-                document.getElementById('topic-heatmap-container').innerHTML = "No analyzed data files found in this folder.";
+        window.onload = function() {
+            const testIds = ["1", "1_1", "1_2", "2", "2_1", "2_2", "2_3", "2_4", "3", "3_1", "3_2", "3_3", "3_4", "4", "4_1", "4_2", "4_3", "4_4", "4_5", "4_6", "4_7", "4_8", "4_9", "5", "5_1", "5_2", "5_3", "5_4"];
+            
+            testIds.forEach(id => {
+                try {
+                    let data = eval(`mockTestData${id}_analyzed`);
+                    if (data && Array.isArray(data)) {
+                        window.allMPSCData = window.allMPSCData.concat(data);
+                    }
+                } catch (e) { }
+            });
+
+            if(window.allMPSCData.length === 0) {
+                document.getElementById('subtopic-list-container').innerHTML = '<div style="color:var(--wrong); font-weight:bold; padding:20px;">Error: No test data found.</div>';
                 return;
             }
 
-            let subjectCounts = {};
-            let trapCounts = {};
-            let topicCounts = {};
-
             window.allMPSCData.forEach(q => {
-                let sub = q.subject || "Unknown";
-                subjectCounts[sub] = (subjectCounts[sub] || 0) + 1;
-
-                let trap = q.trap_detected || "None";
-                if (trap !== "None" && trap !== "none") {
-                    trapCounts[trap] = (trapCounts[trap] || 0) + 1;
-                }
-
-                let topic = q.topic || "Unknown";
-                let comboName = `${sub}: ${topic}`;
-                topicCounts[comboName] = (topicCounts[comboName] || 0) + 1;
+                q.clean_subject = normalizeSubject(q.subject);
+                q.clean_topic = normalizeTopic(q.topic, q.subject);
+                q.clean_trap = normalizeTrap(q.trap_detected);
             });
 
-            // 1. Subject Weightage
-            let subjectHTML = "";
-            Object.entries(subjectCounts).sort((a, b) => b[1] - a[1]).forEach(([subject, count]) => {
-                let percent = ((count / totalQuestions) * 100).toFixed(1);
-                subjectHTML += `
+            renderRankedSubtopics(); 
+            renderGlobalStats();
+            renderPersonalProfile();
+        };
+
+        function toggleAccordion(id) {
+            let elem = document.getElementById(id);
+            if (elem.style.display === "none") {
+                elem.style.display = "block";
+            } else {
+                elem.style.display = "none";
+            }
+        }
+
+        function renderRankedSubtopics() {
+            let topicMap = {};
+            let totalQs = window.allMPSCData.length;
+
+            window.allMPSCData.forEach(q => {
+                let key = `${q.clean_subject}|${q.clean_topic}`;
+                if (!topicMap[key]) {
+                    topicMap[key] = {
+                        subject: q.clean_subject,
+                        topic: q.clean_topic,
+                        count: 0,
+                        questions: []
+                    };
+                }
+                topicMap[key].count++;
+                topicMap[key].questions.push(q);
+            });
+
+            let sortedTopics = Object.values(topicMap).sort((a, b) => b.count - a.count);
+
+            let html = `
+                <div style="margin-top: 10px; font-weight: bold; border-bottom: 2px solid var(--border); padding-bottom: 10px; display: flex; justify-content: space-between;">
+                    <span>Rank & Master Subtopic</span>
+                    <span>Total Questions</span>
+                </div>
+                <div class="scrollable-list" style="max-height: 600px; overflow-y: auto; padding-right: 15px; margin-top: 10px;">
+            `;
+
+            sortedTopics.forEach((tData, index) => {
+                let yieldPercent = ((tData.count / totalQs) * 100).toFixed(1);
+                let rank = index + 1;
+                let accId = `acc-${index}`;
+                
+                let medal = "";
+                if(rank === 1) medal = "🥇 ";
+                if(rank === 2) medal = "🥈 ";
+                if(rank === 3) medal = "🥉 ";
+
+                let qListHTML = tData.questions.map((q, qIndex) => {
+                    let optionsStr = '<div style="margin-top: 10px; padding: 12px; background: #f8f9fa; border-radius: 6px; border: 1px solid #dadce0;">';
+                    for (let i = 0; i < 4; i++) {
+                        let mOpt = (q.options_marathi && q.options_marathi[i]) ? q.options_marathi[i] : "";
+                        let eOpt = (q.options_english && q.options_english[i]) ? q.options_english[i] : "";
+                        if (mOpt || eOpt) {
+                            optionsStr += `<div style="margin-bottom: 8px; font-size: 0.95rem;"><b>${i+1}.</b> ${mOpt} <span style="color:#5f6368; font-size: 0.85rem;">${eOpt}</span></div>`;
+                        }
+                    }
+                    
+                    let correctAns = 0;
+                    if (q.options_breakdown && Array.isArray(q.options_breakdown)) {
+                        let correctIndex = q.options_breakdown.findIndex(opt => opt.is_correct === true || opt.is_correct === "true");
+                        if (correctIndex !== -1) correctAns = correctIndex + 1;
+                    }
+                    if (!correctAns || isNaN(correctAns)) {
+                        let parsedIdx = parseInt(q.correct_option_index);
+                        if (!isNaN(parsedIdx)) correctAns = parsedIdx;
+                        if(correctAns < 4 && correctAns !== 0 && !q.options_breakdown) correctAns += 1; 
+                    }
+                    
+                    if (correctAns >= 1 && correctAns <= 4) {
+                        optionsStr += `<div style="margin-top: 12px; padding-top: 8px; border-top: 1px solid #dadce0; color: var(--correct); font-weight: bold; font-size: 0.9rem;">✅ Correct Answer: Option ${correctAns}</div>`;
+                    }
+                    optionsStr += '</div>';
+
+                    return `
+                        <div class="q-mini-card">
+                            <div style="font-size: 0.85rem; color: var(--primary); font-weight: bold; margin-bottom: 8px;">Q${qIndex + 1} | 🚨 Trap: ${q.clean_trap}</div>
+                            <div style="font-weight: bold; font-size: 1.05rem; margin-bottom: 5px;">${q.question_marathi}</div>
+                            <div style="font-size: 0.95rem; color: #5f6368; margin-bottom: 10px;">${q.question_english || ""}</div>
+                            ${optionsStr}
+                            ${q.explanation_marathi ? `<div style="margin-top: 10px; font-size: 0.9rem; color: #333; background: white; padding: 10px; border-radius: 4px; border: 1px solid var(--border);"><b>AI Explanation:</b> ${q.explanation_marathi}</div>` : ''}
+                        </div>
+                    `;
+                }).join('');
+
+                html += `
+                    <div class="stat-row clickable-row" onclick="toggleAccordion('${accId}')">
+                        <div style="display:flex; gap:15px; align-items:center;">
+                            <div style="font-size:1.3rem; font-weight:bold; color:#b06000; width:40px; text-align:right;">${medal}#${rank}</div>
+                            <div>
+                                <span style="color:var(--primary); font-size:0.85rem; text-transform:uppercase;">${tData.subject}</span><br>
+                                <b style="font-size: 1.05rem;">${tData.topic}</b>
+                            </div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap: 15px;">
+                            <span class="yield-badge" style="font-size: 1rem;">${tData.count} Qs (${yieldPercent}%)</span>
+                            <span style="color:#888; font-size:0.8rem; font-weight:bold;">▼ View</span>
+                        </div>
+                    </div>
+                    <div id="${accId}" style="display: none; padding: 20px; background: #e8f0fe; border-radius: 8px; margin-bottom: 15px; border: 1px solid #aecbfa;">
+                        <div style="margin-bottom: 15px; font-weight: bold; color: var(--primary); font-size: 1.1rem;">📚 Study Mode: ${tData.topic}</div>
+                        ${qListHTML}
+                    </div>
+                `;
+            });
+            
+            html += `</div>`; 
+            document.getElementById('subtopic-list-container').innerHTML = html;
+        }
+
+        function renderPersonalProfile() {
+            let errorLog = JSON.parse(localStorage.getItem('mpsc_error_log')) || [];
+            let container = document.getElementById('personal-profile-container');
+            
+            if (errorLog.length === 0) {
+                container.innerHTML = `
+                    <div style="background:#e8eaed; padding:30px; border-radius:8px; text-align:center;">
+                        <h3 style="margin-top:0;">No Data Yet!</h3>
+                        <p style="color:#5f6368; margin-bottom:0;">Take a Mock Test and hit Submit. We will track your mistakes and show your weak points here.</p>
+                    </div>`;
+                return;
+            }
+
+            let trapFails = {};
+            let topicFails = {};
+            let totalTrappedErrors = 0;
+
+            errorLog.forEach(err => {
+                let trap = normalizeTrap(err.trap_detected);
+                if (trap !== "No Trap / Direct Question") {
+                    trapFails[trap] = (trapFails[trap] || 0) + 1;
+                    totalTrappedErrors++;
+                }
+                let cleanSub = normalizeSubject(err.subject);
+                let cleanTop = normalizeTopic(err.topic, err.subject);
+                let topic = `${cleanSub} > ${cleanTop}`;
+                topicFails[topic] = (topicFails[topic] || 0) + 1;
+            });
+
+            let trapHTML = "";
+            let sortedTraps = Object.entries(trapFails).sort((a, b) => b[1] - a[1]);
+            if (sortedTraps.length > 0) {
+                sortedTraps.forEach(([trap, count]) => {
+                    let percent = ((count / totalTrappedErrors) * 100).toFixed(1);
+                    trapHTML += `
+                        <div class="stat-row" style="flex-direction: column; border-bottom: none; padding-bottom: 5px;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <strong>${trap}</strong>
+                                <span style="color: var(--wrong);">${percent}% (${count} times)</span>
+                            </div>
+                            <div class="stat-bar-container"><div class="stat-bar danger" style="width: ${percent}%;"></div></div>
+                        </div>`;
+                });
+            } else {
+                trapHTML = "<p style='color:#5f6368;'>You haven't fallen for any specific MPSC traps yet. Good job!</p>";
+            }
+
+            let topicHTML = "";
+            let sortedTopics = Object.entries(topicFails).sort((a, b) => b[1] - a[1]).slice(0, 5);
+            sortedTopics.forEach(([topic, count], index) => {
+                topicHTML += `
+                    <div class="highlight-box">
+                        <strong style="color:var(--wrong);">#${index+1}</strong> <b>${topic}</b>
+                        <div style="font-size:0.9rem; color:#5f6368; margin-top:5px;">You got ${count} questions wrong in this exact clustered topic.</div>
+                    </div>`;
+            });
+
+            container.innerHTML = `
+                <div style="margin-bottom: 20px; font-weight:bold;">Total Logged Mistakes: ${errorLog.length}</div>
+                <div class="grid" style="gap: 40px;">
+                    <div>
+                        <h3>🚨 Traps You Fall For</h3>
+                        <p style="font-size:0.9rem; color:#5f6368; margin-top:-10px;">If a bar is high, you need to read questions more carefully.</p>
+                        ${trapHTML}
+                    </div>
+                    <div>
+                        <h3>📚 Your Weakest Topics</h3>
+                        <p style="font-size:0.9rem; color:#5f6368; margin-top:-10px;">If you fix these 5 topics, your score will jump instantly.</p>
+                        ${topicHTML}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderGlobalStats() {
+            let subCounts = {};
+            let trapCounts = {};
+            let totalTrappedQs = 0; 
+            
+            window.allMPSCData.forEach(q => {
+                subCounts[q.clean_subject] = (subCounts[q.clean_subject] || 0) + 1;
+                if(q.clean_trap && q.clean_trap !== "No Trap / Direct Question") {
+                    trapCounts[q.clean_trap] = (trapCounts[q.clean_trap] || 0) + 1;
+                    totalTrappedQs++;
+                }
+            });
+
+            let totalQs = window.allMPSCData.length;
+            let subHtml = "";
+            Object.entries(subCounts).sort((a,b) => b[1]-a[1]).forEach(([s, c]) => {
+                let percent = ((c / totalQs) * 100).toFixed(1);
+                subHtml += `
                     <div class="stat-row" style="flex-direction: column;">
-                        <div style="display: flex; justify-content: space-between;"><strong>${subject}</strong><span>${percent}% (${count} Qs)</span></div>
+                        <div style="display: flex; justify-content: space-between;"><strong>${s}</strong><span>${percent}% (${c} Qs)</span></div>
                         <div class="stat-bar-container"><div class="stat-bar" style="width: ${percent}%;"></div></div>
                     </div>`;
             });
-            document.getElementById('subject-weightage-container').innerHTML = subjectHTML;
+            document.getElementById('global-subjects').innerHTML = subHtml;
 
-            // 3. Trap Profile
-            let trapHTML = "";
-            let sortedTraps = Object.entries(trapCounts).sort((a, b) => b[1] - a[1]);
-            let totalTraps = sortedTraps.reduce((sum, item) => sum + item[1], 0);
-            sortedTraps.forEach(([trap, count]) => {
-                let percent = ((count / totalTraps) * 100).toFixed(1);
-                trapHTML += `
+            let trapHtml = "";
+            let sortedTraps = Object.entries(trapCounts).sort((a,b) => b[1]-a[1]);
+            
+            sortedTraps.forEach(([t, c]) => {
+                let percent = ((c / totalTrappedQs) * 100).toFixed(1);
+                trapHtml += `
                     <div class="stat-row" style="flex-direction: column;">
-                        <div style="display: flex; justify-content: space-between;"><strong>${trap}</strong><span style="color: #d93025;">${percent}%</span></div>
-                        <div class="stat-bar-container"><div class="stat-bar" style="width: ${percent}%; background: #d93025;"></div></div>
+                        <div style="display: flex; justify-content: space-between;"><strong>${t}</strong><span style="color:var(--wrong)">${percent}%</span></div>
+                        <div class="stat-bar-container"><div class="stat-bar danger" style="width: ${percent}%;"></div></div>
                     </div>`;
             });
-            document.getElementById('trap-profile-container').innerHTML = trapHTML || "No traps detected.";
+            document.getElementById('global-traps').innerHTML = trapHtml || "No traps detected.";
+        }
 
-            // 2. Micro-Topic Heatmap
-            let topicHTML = "";
-            Object.entries(topicCounts).sort((a, b) => b[1] - a[1]).slice(0, 10).forEach(([topic, count], index) => {
-                topicHTML += `
-                    <div class="stat-row">
-                        <span><strong style="color:var(--primary);">#${index+1}</strong> ${topic}</span>
-                        <strong>${count} Qs</strong>
-                    </div>`;
-            });
-            document.getElementById('topic-heatmap-container').innerHTML = topicHTML;
-        };
-
-        // NEW: The Search Engine Logic
         function runSearch() {
-            const query = document.getElementById('search-input').value.toLowerCase().trim();
+            let query = document.getElementById('search-input').value.toLowerCase().trim();
             const resultsContainer = document.getElementById('search-results');
             if(!query) { resultsContainer.innerHTML = ''; return; }
 
@@ -204,7 +483,10 @@
                         (q.question_marathi || "") + " " +
                         (q.question_english || "") + " " +
                         (q.explanation_marathi || "") + " " +
-                        (q.explanation_english || "")
+                        (q.explanation_english || "") + " " +
+                        (q.clean_topic || "") + " " + 
+                        (q.clean_subject || "") + " " +
+                        (q.clean_trap || "")
                     ).toLowerCase();
 
                     if(q.options_breakdown) {
@@ -216,30 +498,37 @@
                 });
 
                 if(results.length === 0) {
-                    resultsContainer.innerHTML = `<div style="padding:15px; color:#d93025; font-weight:bold;">No matches found for "${query}".</div>`;
+                    resultsContainer.innerHTML = `<div style="padding:15px; color:var(--wrong); font-weight:bold;">No matches found for "${query}".</div>`;
                     return;
                 }
 
                 let html = `<div style="padding: 10px 0; font-weight:bold; color:var(--correct);">✅ Found ${results.length} related questions:</div>`;
                 results.forEach((q) => {
+                    let optionsStr = '<div style="margin-top: 10px; padding: 10px; background: #f1f3f4; border-radius: 4px; border: 1px solid #dadce0;">';
+                    for (let i = 0; i < 4; i++) {
+                        let mOpt = (q.options_marathi && q.options_marathi[i]) ? q.options_marathi[i] : "";
+                        if (mOpt) { optionsStr += `<div style="margin-bottom: 5px; font-size: 0.9rem;"><b>${i+1}.</b> ${mOpt}</div>`; }
+                    }
+                    optionsStr += '</div>';
+
                     html += `
                         <div style="background: #f8faff; border-left: 4px solid var(--primary); padding: 15px; margin-bottom: 15px; border-radius: 6px; border: 1px solid #e8f0fe;">
                             <div style="font-size: 0.85rem; color: var(--primary); margin-bottom: 8px; font-weight: bold; text-transform: uppercase;">
-                                📚 ${q.subject} > ${q.topic} | 🚨 Trap: ${q.trap_detected || "None"}
+                                📚 ${q.clean_subject} > ${q.clean_topic} | 🚨 Trap: ${q.clean_trap}
                             </div>
                             <div style="font-weight: bold; margin-bottom: 5px;">${q.question_marathi}</div>
                             <div style="margin-bottom: 10px; font-size: 0.95rem; color: #5f6368;">${q.question_english || ""}</div>
-                            <div style="font-size: 0.9rem; color: #333; background: white; padding: 10px; border-radius: 4px; border: 1px solid var(--border);">
+                            ${optionsStr}
+                            <div style="margin-top: 10px; font-size: 0.9rem; color: #333; background: white; padding: 10px; border-radius: 4px; border: 1px solid var(--border);">
                                 <b>AI Explanation:</b> ${q.explanation_marathi}
                             </div>
                         </div>
                     `;
                 });
                 resultsContainer.innerHTML = html;
-            }, 100); // Small delay to allow UI to show "Scanning..."
+            }, 100); 
         }
 
-        // Allow pressing 'Enter' to search
         document.getElementById("search-input").addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
                 event.preventDefault();
