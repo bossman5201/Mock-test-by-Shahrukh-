@@ -79,6 +79,48 @@
     <script src="mock_test_5_2_analyzed.js"></script>
     <script src="mock_test_5_3_analyzed.js"></script>
     <script src="mock_test_5_4_analyzed.js"></script>
+
+    <script src="mock_test_talathi_1_analyzed.js"></script>
+    <script src="mock_test_talathi_2_analyzed.js"></script>
+    <script src="mock_test_talathi_3_analyzed.js"></script>
+    <script src="mock_test_talathi_4_analyzed.js"></script>
+    <script src="mock_test_talathi_5_analyzed.js"></script>
+    <script src="mock_test_talathi_6_analyzed.js"></script>
+    <script src="mock_test_talathi_7_analyzed.js"></script>
+    <script src="mock_test_talathi_8_analyzed.js"></script>
+    <script src="mock_test_talathi_9_analyzed.js"></script>
+    <script src="mock_test_talathi_10_analyzed.js"></script>
+    <script src="mock_test_talathi_11_analyzed.js"></script>
+    <script src="mock_test_talathi_12_analyzed.js"></script>
+    <script src="mock_test_talathi_13_analyzed.js"></script>
+    <script src="mock_test_talathi_14_analyzed.js"></script>
+    <script src="mock_test_talathi_15_analyzed.js"></script>
+    <script src="mock_test_talathi_16_analyzed.js"></script>
+    <script src="mock_test_talathi_17_analyzed.js"></script>
+    <script src="mock_test_talathi_18_analyzed.js"></script>
+    <script src="mock_test_talathi_19_analyzed.js"></script>
+    <script src="mock_test_talathi_20_analyzed.js"></script>
+    <script src="mock_test_talathi_21_analyzed.js"></script>
+    <script src="mock_test_talathi_22_analyzed.js"></script>
+    <script src="mock_test_talathi_23_analyzed.js"></script>
+    <script src="mock_test_talathi_24_analyzed.js"></script>
+    <script src="mock_test_talathi_25_analyzed.js"></script>
+    <script src="mock_test_talathi_26_analyzed.js"></script>
+    <script src="mock_test_talathi_27_analyzed.js"></script>
+    <script src="mock_test_talathi_28_analyzed.js"></script>
+    <script src="mock_test_talathi_29_analyzed.js"></script>
+    <script src="mock_test_talathi_30_analyzed.js"></script>
+    <script src="mock_test_talathi_31_analyzed.js"></script>
+    <script src="mock_test_talathi_32_analyzed.js"></script>
+    <script src="mock_test_talathi_33_analyzed.js"></script>
+    <script src="mock_test_talathi_34_analyzed.js"></script>
+    <script src="mock_test_talathi_35_analyzed.js"></script>
+    <script src="mock_test_talathi_36_analyzed.js"></script>
+    <script src="mock_test_talathi_37_analyzed.js"></script>
+    <script src="mock_test_talathi_38_analyzed.js"></script>
+    <script src="mock_test_talathi_39_analyzed.js"></script>
+    <script src="mock_test_talathi_40_analyzed.js"></script>
+    <script src="mock_test_talathi_41_analyzed.js"></script>
 </head>
 <body>
 
@@ -221,15 +263,29 @@
         }
 
         window.onload = function() {
-            const testIds = ["1", "1_1", "1_2", "2", "2_1", "2_2", "2_3", "2_4", "3", "3_1", "3_2", "3_3", "3_4", "4", "4_1", "4_2", "4_3", "4_4", "4_5", "4_6", "4_7", "4_8", "4_9", "5", "5_1", "5_2", "5_3", "5_4"];
+            const testIds = [
+                // MPSC Data
+                "1", "1_1", "1_2", "2", "2_1", "2_2", "2_3", "2_4", "3", "3_1", "3_2", "3_3", "3_4", 
+                "4", "4_1", "4_2", "4_3", "4_4", "4_5", "4_6", "4_7", "4_8", "4_9", "5", "5_1", "5_2", "5_3", "5_4",
+                // Talathi Data
+                "talathi_1", "talathi_2", "talathi_3", "talathi_4", "talathi_5", "talathi_6", "talathi_7", "talathi_8", "talathi_9", "talathi_10",
+                "talathi_11", "talathi_12", "talathi_13", "talathi_14", "talathi_15", "talathi_16", "talathi_17", "talathi_18", "talathi_19", "talathi_20",
+                "talathi_21", "talathi_22", "talathi_23", "talathi_24", "talathi_25", "talathi_26", "talathi_27", "talathi_28", "talathi_29", "talathi_30",
+                "talathi_31", "talathi_32", "talathi_33", "talathi_34", "talathi_35", "talathi_36", "talathi_37", "talathi_38", "talathi_39", "talathi_40", "talathi_41"
+            ];
             
             testIds.forEach(id => {
                 try {
-                    let data = eval(`mockTestData${id}_analyzed`);
+                    let varName = `mockTestData${id}_analyzed`;
+                    if (id.startsWith('talathi_')) {
+                        let num = id.split('_')[1];
+                        varName = `mockTestDataTalathi${num}_analyzed`;
+                    }
+                    let data = eval(varName);
                     if (data && Array.isArray(data)) {
                         window.allMPSCData = window.allMPSCData.concat(data);
                     }
-                } catch (e) { }
+                } catch (e) { console.warn('File not found or empty:', id); }
             });
 
             if(window.allMPSCData.length === 0) {
@@ -475,7 +531,7 @@
             const resultsContainer = document.getElementById('search-results');
             if(!query) { resultsContainer.innerHTML = ''; return; }
 
-            resultsContainer.innerHTML = '<div style="padding:20px; text-align:center;">Scanning 2,800 questions...</div>';
+            resultsContainer.innerHTML = `<div style="padding:20px; text-align:center;">Scanning ${window.allMPSCData.length} questions...</div>`;
 
             setTimeout(() => {
                 let results = window.allMPSCData.filter(q => {
@@ -520,7 +576,7 @@
                             <div style="margin-bottom: 10px; font-size: 0.95rem; color: #5f6368;">${q.question_english || ""}</div>
                             ${optionsStr}
                             <div style="margin-top: 10px; font-size: 0.9rem; color: #333; background: white; padding: 10px; border-radius: 4px; border: 1px solid var(--border);">
-                                <b>AI Explanation:</b> ${q.explanation_marathi}
+                                <b>AI Explanation:</b> ${q.explanation_marathi || "Not Available"}
                             </div>
                         </div>
                     `;
