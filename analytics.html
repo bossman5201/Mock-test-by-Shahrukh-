@@ -169,6 +169,19 @@
     <script>
         window.allMPSCData = [];
 
+        // --- NEW METADATA CLEANER FUNCTION ---
+        function cleanOptionText(text) {
+            if (!text) return "";
+            let cleaned = text.replace(/Question Type\s*:\s*MCQ.*/gi, '');
+            cleaned = cleaned.replace(/Question ID\s*:.*/gi, '');
+            cleaned = cleaned.replace(/Option \d+ ID\s*:.*/gi, '');
+            cleaned = cleaned.replace(/Status\s*:\s*Answered.*/gi, '');
+            cleaned = cleaned.replace(/Chosen Option\s*:\s*\d.*/gi, '');
+            cleaned = cleaned.replace(/Marks\s*:\s*\d.*/gi, '');
+            cleaned = cleaned.replace(/http:\/\/www\.adda247.*/gi, '');
+            return cleaned.trim();
+        }
+
         function normalizeTrap(rawTrap) {
             if (!rawTrap) return "No Trap / Direct Question";
             let t = rawTrap.toString().toUpperCase();
@@ -354,8 +367,8 @@
                 let qListHTML = tData.questions.map((q, qIndex) => {
                     let optionsStr = '<div style="margin-top: 10px; padding: 12px; background: #f8f9fa; border-radius: 6px; border: 1px solid #dadce0;">';
                     for (let i = 0; i < 4; i++) {
-                        let mOpt = (q.options_marathi && q.options_marathi[i]) ? q.options_marathi[i] : "";
-                        let eOpt = (q.options_english && q.options_english[i]) ? q.options_english[i] : "";
+                        let mOpt = (q.options_marathi && q.options_marathi[i]) ? cleanOptionText(q.options_marathi[i]) : "";
+                        let eOpt = (q.options_english && q.options_english[i]) ? cleanOptionText(q.options_english[i]) : "";
                         if (mOpt || eOpt) {
                             optionsStr += `<div style="margin-bottom: 8px; font-size: 0.95rem;"><b>${i+1}.</b> ${mOpt} <span style="color:#5f6368; font-size: 0.85rem;">${eOpt}</span></div>`;
                         }
@@ -562,7 +575,7 @@
                 results.forEach((q) => {
                     let optionsStr = '<div style="margin-top: 10px; padding: 10px; background: #f1f3f4; border-radius: 4px; border: 1px solid #dadce0;">';
                     for (let i = 0; i < 4; i++) {
-                        let mOpt = (q.options_marathi && q.options_marathi[i]) ? q.options_marathi[i] : "";
+                        let mOpt = (q.options_marathi && q.options_marathi[i]) ? cleanOptionText(q.options_marathi[i]) : "";
                         if (mOpt) { optionsStr += `<div style="margin-bottom: 5px; font-size: 0.9rem;"><b>${i+1}.</b> ${mOpt}</div>`; }
                     }
                     optionsStr += '</div>';
