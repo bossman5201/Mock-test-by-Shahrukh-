@@ -113,7 +113,7 @@
            📱 MOBILE RESPONSIVE DESIGN
            ========================================= */
         @media (max-width: 768px) {
-            body { padding: 0; height: auto; overflow: auto; } /* Let the whole phone screen scroll naturally */
+            body { padding: 0; height: auto; overflow: auto; }
             header { flex-direction: column; gap: 15px; text-align: center; margin-bottom: 20px; padding: 15px; }
             .app-title { font-size: 1.4rem; }
             
@@ -128,8 +128,8 @@
             .top-nav { width: 100%; justify-content: space-between; overflow-x: auto; padding-bottom: 5px; }
             .top-nav .btn-sm { white-space: nowrap; font-size: 0.85rem; padding: 8px 12px; }
             
-            .q-text-container { grid-template-columns: 1fr; gap: 15px; } /* Stack English under Marathi */
-            .options-grid { grid-template-columns: 1fr; } /* Single column for options */
+            .q-text-container { grid-template-columns: 1fr; gap: 15px; }
+            .options-grid { grid-template-columns: 1fr; }
             
             .nav-buttons { flex-direction: column; gap: 10px; }
             .nav-buttons .btn { width: 100%; text-align: center; }
@@ -140,7 +140,7 @@
             #result-screen { padding: 15px; }
             .score-card { padding: 20px; }
             .final-score { font-size: 3.5rem; }
-            .stats-grid { grid-template-columns: 1fr 1fr; gap: 15px; } /* 2x2 grid for stats instead of 4 in a row */
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: 15px; }
             .analysis-item { padding: 15px; }
         }
         
@@ -259,11 +259,23 @@
 
     <script>
         const availableTests = [
+            // MPSC Tests
             "1_analyzed", "1_1_analyzed", "1_2_analyzed", 
             "2_analyzed", "2_1_analyzed", "2_2_analyzed", "2_3_analyzed", "2_4_analyzed", 
             "3_analyzed", "3_1_analyzed", "3_2_analyzed", "3_3_analyzed", "3_4_analyzed", 
             "4_analyzed", "4_1_analyzed", "4_2_analyzed", "4_3_analyzed", "4_4_analyzed", "4_5_analyzed", "4_6_analyzed", "4_7_analyzed", "4_8_analyzed", "4_9_analyzed", 
-            "5_analyzed", "5_1_analyzed", "5_2_analyzed", "5_3_analyzed", "5_4_analyzed"
+            "5_analyzed", "5_1_analyzed", "5_2_analyzed", "5_3_analyzed", "5_4_analyzed",
+            
+            // Talathi Bharti Tests 1 to 41
+            "talathi_1_analyzed", "talathi_2_analyzed", "talathi_3_analyzed", "talathi_4_analyzed", "talathi_5_analyzed",
+            "talathi_6_analyzed", "talathi_7_analyzed", "talathi_8_analyzed", "talathi_9_analyzed", "talathi_10_analyzed",
+            "talathi_11_analyzed", "talathi_12_analyzed", "talathi_13_analyzed", "talathi_14_analyzed", "talathi_15_analyzed",
+            "talathi_16_analyzed", "talathi_17_analyzed", "talathi_18_analyzed", "talathi_19_analyzed", "talathi_20_analyzed",
+            "talathi_21_analyzed", "talathi_22_analyzed", "talathi_23_analyzed", "talathi_24_analyzed", "talathi_25_analyzed",
+            "talathi_26_analyzed", "talathi_27_analyzed", "talathi_28_analyzed", "talathi_29_analyzed", "talathi_30_analyzed",
+            "talathi_31_analyzed", "talathi_32_analyzed", "talathi_33_analyzed", "talathi_34_analyzed", "talathi_35_analyzed",
+            "talathi_36_analyzed", "talathi_37_analyzed", "talathi_38_analyzed", "talathi_39_analyzed", "talathi_40_analyzed",
+            "talathi_41_analyzed"
         ];
 
         let examData = [];
@@ -285,7 +297,7 @@
             const history = JSON.parse(localStorage.getItem('mpscHistory')) || {};
             
             availableTests.forEach(testId => {
-                let displayName = testId.replace('_analyzed', '').replace('_', '.');
+                let displayName = testId.replace('_analyzed', '').replace('_', '.').replace('talathi.', 'Talathi ');
                 let badgeHTML = '';
                 
                 if (history[testId]) {
@@ -296,12 +308,16 @@
                     `;
                 }
 
+                // Make talathi icons blue to stand out from MPSC
+                let iconStr = testId.includes('talathi') ? "📘" : "📄";
+                let metaStr = testId.includes('talathi') ? "TCS Pattern • 60 Mins" : "100 Questions • 60 Mins";
+
                 grid.innerHTML += `
                     <div class="test-card" onclick="loadTestFile('${testId}', '${displayName}')">
                         <div>
-                            <div class="test-icon">📄</div>
+                            <div class="test-icon">${iconStr}</div>
                             <div class="test-title">Mock Test ${displayName}</div>
-                            <div class="test-meta">100 Questions • 60 Mins</div>
+                            <div class="test-meta">${metaStr}</div>
                         </div>
                         ${badgeHTML}
                     </div>
@@ -319,7 +335,14 @@
             
             script.onload = () => {
                 try {
-                    examData = eval(`mockTestData${testId}`);
+                    // Smart Variable Name Resolution for Talathi vs MPSC
+                    let varName = `mockTestData${testId}`; 
+                    if(testId.startsWith('talathi_')) {
+                        let num = testId.split('_')[1];
+                        varName = `mockTestDataTalathi${num}_analyzed`;
+                    }
+                    
+                    examData = eval(varName);
                 } catch(e) {
                     console.error("Evaluation error:", e);
                     examData = null;
@@ -491,7 +514,7 @@
                 if (correctAns === 0 || correctAns > 4) {
                     cancelled++;
                     statusClass = 'cancelled-ans';
-                    statusText = 'Cancelled by MPSC (0 Marks)';
+                    statusText = 'Cancelled by Board (0 Marks)';
                 } else if (!userAns) {
                     skipped++;
                     statusClass = 'skipped-ans';
@@ -522,11 +545,11 @@
                                 ? `<span style="background: #fce8e6; color: #d93025; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; margin-left: 10px;">⚠️ Trap: ${q.trap_detected}</span>` : "";
 
                 let explanationHTML = "";
-                if (q.explanation_english) {
+                if (q.explanation_english || q.explanation_marathi) {
                     explanationHTML = `
                         <div style="margin-top:15px; padding: 15px; background: #f8faff; border-radius: 8px; border-left: 4px solid var(--primary);">
                             <div style="font-weight:bold; color:var(--primary); margin-bottom:5px;">Analysis (${q.subject || "Topic"} - ${q.topic || "Subtopic"}):</div>
-                            <div style="font-size:0.95rem; color:#333; margin-bottom: 10px;">${q.explanation_english}</div>
+                            <div style="font-size:0.95rem; color:#333; margin-bottom: 10px;">${q.explanation_english || ""}</div>
                             <div style="font-size:0.95rem; color:#555;"><i>${q.explanation_marathi || ""}</i></div>
                         </div>
                     `;
