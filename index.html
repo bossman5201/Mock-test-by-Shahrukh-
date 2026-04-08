@@ -286,6 +286,19 @@
         let timerInterval;
         let activeTestId = ""; 
 
+        // --- NEW METADATA CLEANER FUNCTION ---
+        function cleanOptionText(text) {
+            if (!text) return "";
+            let cleaned = text.replace(/Question Type\s*:\s*MCQ.*/gi, '');
+            cleaned = cleaned.replace(/Question ID\s*:.*/gi, '');
+            cleaned = cleaned.replace(/Option \d+ ID\s*:.*/gi, '');
+            cleaned = cleaned.replace(/Status\s*:\s*Answered.*/gi, '');
+            cleaned = cleaned.replace(/Chosen Option\s*:\s*\d.*/gi, '');
+            cleaned = cleaned.replace(/Marks\s*:\s*\d.*/gi, '');
+            cleaned = cleaned.replace(/http:\/\/www\.adda247.*/gi, '');
+            return cleaned.trim();
+        }
+
         window.onload = function() {
             renderDashboard();
         };
@@ -308,7 +321,6 @@
                     `;
                 }
 
-                // Make talathi icons blue to stand out from MPSC
                 let iconStr = testId.includes('talathi') ? "📘" : "📄";
                 let metaStr = testId.includes('talathi') ? "TCS Pattern • 60 Mins" : "100 Questions • 60 Mins";
 
@@ -335,7 +347,6 @@
             
             script.onload = () => {
                 try {
-                    // Smart Variable Name Resolution for Talathi vs MPSC
                     let varName = `mockTestData${testId}`; 
                     if(testId.startsWith('talathi_')) {
                         let num = testId.split('_')[1];
@@ -439,8 +450,9 @@
                 btn.className = `option-btn ${userAnswers[currentIndex] === optNum ? 'selected' : ''}`;
                 btn.onclick = () => selectOption(optNum);
                 
-                let optMar = (q.options_marathi && q.options_marathi[i]) ? q.options_marathi[i] : "";
-                let optEng = (q.options_english && q.options_english[i]) ? q.options_english[i] : "";
+                // METADATA CLEANER APPLIED HERE
+                let optMar = (q.options_marathi && q.options_marathi[i]) ? cleanOptionText(q.options_marathi[i]) : "";
+                let optEng = (q.options_english && q.options_english[i]) ? cleanOptionText(q.options_english[i]) : "";
 
                 btn.innerHTML = `
                     <div class="opt-mr">( ${optNum} ) ${optMar}</div>
