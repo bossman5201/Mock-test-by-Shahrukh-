@@ -169,7 +169,7 @@
     <script>
         window.allMPSCData = [];
 
-        // --- NEW METADATA CLEANER FUNCTION ---
+        // --- METADATA CLEANER FUNCTION ---
         function cleanOptionText(text) {
             if (!text) return "";
             let cleaned = text.replace(/Question Type\s*:\s*MCQ.*/gi, '');
@@ -198,81 +198,120 @@
 
         function normalizeSubject(rawSub) {
             let s = (rawSub || "").toString().toUpperCase();
-            if (s.includes("POLITY") || s.includes("CONSTITUTION")) return "Polity";
-            if (s.includes("HIST")) return "History";
-            if (s.includes("GEO")) return "Geography";
-            if (s.includes("ECON")) return "Economy";
-            if (s.includes("SCI")) return "Science & Tech";
-            if (s.includes("CURR") || s.includes("AFFAIR")) return "Current Affairs";
-            if (s.includes("LAW") || s.includes("ACT") || s.includes("PENAL") || s.includes("PROCEDURE")) return "Law";
-            if (s.includes("MATH") || s.includes("REASON") || s.includes("APTITUDE")) return "Math & Reasoning";
-            if (s.includes("MARATHI")) return "Marathi Grammar & Comp";
-            if (s.includes("ENGLISH")) return "English Grammar & Comp";
-            if (s.includes("COMPREHENSION") || s.includes("PASSAGE")) return "Reading Comprehension";
-            return "General Awareness";
+            if (s.includes("POLITY") || s.includes("CONSTITUTION")) return "राज्यशास्त्र";
+            if (s.includes("HIST")) return "इतिहास";
+            if (s.includes("GEO")) return "भूगोल";
+            if (s.includes("ECON")) return "अर्थव्यवस्था";
+            if (s.includes("SCI")) return "विज्ञान आणि तंत्रज्ञान";
+            if (s.includes("CURR") || s.includes("AFFAIR")) return "चालू घडामोडी";
+            if (s.includes("LAW") || s.includes("ACT") || s.includes("PENAL") || s.includes("PROCEDURE")) return "कायदा";
+            if (s.includes("MATH") || s.includes("REASON") || s.includes("APTITUDE")) return "गणित आणि बुद्धिमत्ता";
+            if (s.includes("MARATHI")) return "मराठी व्याकरण";
+            if (s.includes("ENGLISH")) return "इंग्रजी व्याकरण";
+            if (s.includes("COMPREHENSION") || s.includes("PASSAGE")) return "उतारे वरील प्रश्न (आकलन)";
+            return "सामान्य ज्ञान";
         }
 
+        // --- NEW SMART TOPIC NORMALIZER (SUBJECT SILOS) ---
         function normalizeTopic(rawTopic, rawSub) {
             let t = (rawTopic || "").toString().toUpperCase();
-            let s = (rawSub || "").toString().toUpperCase();
-            let combined = t + " " + s;
+            let cleanSub = normalizeSubject(rawSub);
+            let combined = t + " " + (rawSub || "").toString().toUpperCase();
 
-            const buckets = [
-                { words: ["CONSTITUTION", "ARTICLE", "AMENDMENT", "FUNDAMENTAL", "DIRECTIVE", "SCHEDULE"], name: "Constitution & Articles" },
-                { words: ["PANCHAYAT", "GRAM", "ZILLA", "MUNICIPAL", "LOCAL", "SARPANCH"], name: "Local Self Govt (Panchayat Raj)" },
-                { words: ["PRESIDENT", "GOVERNOR", "MINISTER", "PARLIAMENT", "LEGISLATURE", "ASSEMBLY", "CM", "PM"], name: "Executive & Legislature" },
-                { words: ["JUDICIARY", "COURT", "SUPREME", "HIGH", "JUDGE"], name: "Judiciary System" },
-                { words: ["ELECTION", "COMMISSION", "UPSC", "MPSC", "CAG"], name: "Elections & Commissions" },
-                { words: ["1857", "REVOLT", "MUTINY", "COMPANY"], name: "Revolt of 1857 & Company Rule" },
-                { words: ["CONGRESS", "NATIONAL MOVEMENT", "FREEDOM", "GANDHI", "MODERATE", "EXTREMIST", "REVOLUTION", "SATYAGRAHA"], name: "Indian National Movement" },
-                { words: ["REFORMER", "SAMAJ", "PHULE", "AMBEDKAR", "AGARKAR", "SHAHU", "KARVE", "SATYASHODHAK"], name: "Social & Religious Reformers" },
-                { words: ["PEASANT", "WORKER", "FARMER", "TRIBAL", "UPRISING", "COMMUNIST"], name: "Peasant, Worker & Tribal Movements" },
-                { words: ["PRESS", "EDUCATION", "BRITISH RULE", "ACT", "CHARTER", "COUNCIL"], name: "British Administration & Acts" },
-                { words: ["ANCIENT", "MEDIEVAL", "MARATHA", "SHIVAJI", "PESHWA", "INDUS", "MUGHAL", "SULTANATE"], name: "Ancient/Medieval & Maratha History" },
-                { words: ["RIVER", "DRAINAGE", "GODAVARI", "KRISHNA", "BHIMA", "TAPI", "NARMADA"], name: "River Systems & Drainage" },
-                { words: ["MOUNTAIN", "PEAK", "SAHYADRI", "GHAT", "PHYSICAL", "PLATEAU", "COAST"], name: "Physical Geography of Maharashtra" },
-                { words: ["CLIMATE", "MONSOON", "RAINFALL", "TEMPERATURE"], name: "Climate & Weather" },
-                { words: ["SOIL", "AGRICULTURE", "CROP", "FARMING", "IRRIGATION"], name: "Agriculture, Soils & Irrigation" },
-                { words: ["MINERAL", "ORE", "COAL", "IRON", "POWER", "ENERGY", "MANGANESE", "BAUXITE"], name: "Minerals & Energy Resources" },
-                { words: ["INDUSTRY", "TRANSPORT", "HIGHWAY", "PORT", "RAILWAY"], name: "Industries & Transport" },
-                { words: ["DEMOGRAPHY", "POPULATION", "CENSUS", "LITERACY", "SEX RATIO", "MIGRATION", "SC/ST", "DISTRICT POPULATION"], name: "Demography & Census" },
-                { words: ["PLANNING", "FIVE YEAR", "NITI", "PLAN"], name: "Economic Planning & NITI Aayog" },
-                { words: ["BANK", "MONETARY", "RBI", "INFLATION", "CREDIT", "CURRENCY"], name: "Banking & Monetary Policy" },
-                { words: ["BUDGET", "FISCAL", "TAX", "DEFICIT", "FINANCE", "GST"], name: "Public Finance & Taxation" },
-                { words: ["POVERTY", "UNEMPLOYMENT", "INEQUALITY", "CHALLENGES"], name: "Poverty, Unemployment & Economy Challenges" },
-                { words: ["TRADE", "BOP", "FDI", "EXPORT", "IMPORT", "WTO"], name: "International Trade & BoP" },
-                { words: ["SCHEME", "YOJANA", "PROGRAMME", "MISSION", "DBT"], name: "Govt Schemes & Welfare Programs" },
-                { words: ["DISEASE", "INFECTION", "VIRUS", "BACTERIA", "HEALTH", "VITAMIN", "NUTRITION", "VACCINE", "IMMUNITY"], name: "Human Health, Diseases & Nutrition" },
-                { words: ["CELL", "BLOOD", "ORGAN", "SYSTEM", "REPRODUCTION", "GENETIC", "EYE", "RECEPTOR", "BRAIN", "HEART"], name: "Human Anatomy & Biology" },
-                { words: ["PLANT", "BOTANY", "PHOTOSYNTHESIS", "CLASSIFICATION", "KINGDOM", "FLOWER"], name: "Plant Kingdom & Botany" },
-                { words: ["PHYSICS", "MOTION", "LIGHT", "SOUND", "ELECTRICITY", "MAGNETISM", "FORCE", "WORK", "OPTICS", "HEAT"], name: "Physics Principles" },
-                { words: ["CHEMISTRY", "ACID", "BASE", "METAL", "REACTION", "ATOM", "MOLECULE", "PERIODIC", "CARBON", "ALLOY"], name: "Chemistry Principles" },
-                { words: ["SPACE", "ISRO", "SATELLITE", "DEFENCE", "MISSILE", "TECHNOLOGY", "COMPUTER", "IT", "APACHE", "DRDO"], name: "Science & Technology Advancements" },
-                { words: ["PENAL CODE", "IPC", "OFFENCE", "PUNISHMENT", "MURDER", "THEFT", "PROPERTY", "UNLAWFUL ASSEMBLY"], name: "Indian Penal Code (IPC)" },
-                { words: ["CRIMINAL PROCEDURE", "CRPC", "ARREST", "BAIL", "WARRANT", "COURT", "POLICE", "CHARGE"], name: "Criminal Procedure Code (CrPC)" },
-                { words: ["EVIDENCE ACT", "EVIDENCE", "DOCUMENT", "WITNESS", "PRESUMPTION", "JUDICIAL NOTICE", "FACT"], name: "Indian Evidence Act" },
-                { words: ["MAHARASHTRA POLICE ACT", "COMPENSATION", "INSPECTOR"], name: "Maharashtra Police Act" },
-                { words: ["SERIES", "NUMBER", "ALPHABET", "CODING", "DECODING"], name: "Series & Coding-Decoding" },
-                { words: ["DIRECTION", "DISTANCE", "BLOOD RELATION"], name: "Directions & Blood Relations" },
-                { words: ["SYLLOGISM", "STATEMENT", "CONCLUSION", "ASSUMPTION", "ARGUMENT"], name: "Logical Reasoning (Syllogisms)" },
-                { words: ["TIME", "WORK", "SPEED", "DISTANCE", "TRAIN", "BOAT"], name: "Time, Speed & Work" },
-                { words: ["PERCENTAGE", "PROFIT", "LOSS", "RATIO", "PROPORTION", "AVERAGE", "AGE", "FRACTION", "EQUATION"], name: "Basic Numeracy (Ages, Fractions, Averages)" },
-                { words: ["DATA", "GRAPH", "PIE", "CHART", "TABLE", "SUFFICIENCY"], name: "Data Interpretation & Sufficiency" },
-                { words: ["PUZZLE", "SEATING", "ARRANGEMENT", "CUBE", "DICE", "SPATIAL", "FIGURE"], name: "Puzzles & Spatial Reasoning" },
-                { words: ["PASSAGE", "COMPREHENSION", "INFERENCE", "THEME", "TONE", "IDEALISM", "PSYCHOLOGY"], name: "Reading Comprehension Analysis" },
-                { words: ["GRAMMAR", "TENSE", "VOICE", "SPEECH", "CLAUSE", "PREPOSITION", "ARTICLE"], name: "Grammar Rules" },
-                { words: ["VOCABULARY", "SYNONYM", "ANTONYM", "IDIOM", "PHRASE", "WORD", "SPELLING"], name: "Vocabulary & Idioms" },
-                { words: ["शुद्धलेखन", "विशेषणे", "नामे", "वाक्यप्रचार", "म्हणी", "समानार्थी", "विरुद्धार्थी", "प्रयोग", "समास", "अलंकार", "सर्वनाम"], name: "Marathi Grammar Rules" },
-                { words: ["AWARD", "PRIZE", "SPORTS", "OLYMPIC", "BOOK", "AUTHOR", "APPOINTMENT", "INDEX", "RANK", "SUMMIT", "OPERATION DEVI SHAKTI"], name: "Current Affairs (Awards, Events)" }
+            // 1. English Grammar Silo
+            if (cleanSub === "इंग्रजी व्याकरण") {
+                if (combined.includes("ARTICLE")) return "उपपदे (Articles)";
+                if (combined.includes("TENSE")) return "काळ (Tenses)";
+                if (combined.includes("VOICE")) return "प्रयोग (Active/Passive Voice)";
+                if (combined.includes("SPEECH") || combined.includes("DIRECT")) return "प्रत्यक्ष/अप्रत्यक्ष कथन (Speech)";
+                if (combined.includes("PREPOSITION")) return "शब्दयोगी अव्यये (Prepositions)";
+                if (combined.includes("VOCAB") || combined.includes("SYNONYM") || combined.includes("ANTONYM") || combined.includes("IDIOM") || combined.includes("PHRASE") || combined.includes("SPELL") || combined.includes("WORD")) return "शब्दसंग्रह आणि वाक्प्रचार (Vocabulary)";
+                if (combined.includes("GRAMMAR") || combined.includes("ERROR") || combined.includes("SENTENCE")) return "सामान्य व्याकरण आणि वाक्यरचना";
+                return "इतर (इंग्रजी व्याकरण)";
+            }
+
+            // 2. Marathi Grammar Silo
+            if (cleanSub === "मराठी व्याकरण") {
+                if (combined.includes("काळ") || combined.includes("TENSE")) return "काळ (Tenses)";
+                if (combined.includes("प्रयोग") || combined.includes("VOICE")) return "प्रयोग (Voice)";
+                if (combined.includes("समास")) return "समास (Samas)";
+                if (combined.includes("अलंकार")) return "अलंकार (Alankar)";
+                if (combined.includes("समानार्थी") || combined.includes("विरुद्धार्थी") || combined.includes("वाक्यप्रचार") || combined.includes("म्हणी") || combined.includes("VOCAB")) return "शब्दसंग्रह आणि वाक्प्रचार";
+                if (combined.includes("नाम") || combined.includes("सर्वनाम") || combined.includes("विशेषण") || combined.includes("क्रियापद")) return "शब्दांच्या जाती (Parts of Speech)";
+                if (combined.includes("शुद्ध") || combined.includes("SPELL")) return "शुद्धलेखन";
+                return "इतर (मराठी व्याकरण)";
+            }
+
+            // 3. Math & Reasoning Silo
+            if (cleanSub === "गणित आणि बुद्धिमत्ता") {
+                 if (combined.includes("SERIES") || combined.includes("NUMBER") || combined.includes("ALPHABET") || combined.includes("CODING")) return "मालिका आणि कोडिंग-डिकोडिंग";
+                 if (combined.includes("DIRECTION") || combined.includes("DISTANCE") || combined.includes("BLOOD")) return "दिशा आणि नातेसंबंध";
+                 if (combined.includes("SYLLOGISM") || combined.includes("STATEMENT") || combined.includes("CONCLUSION")) return "तार्किक बुद्धिमत्ता (Syllogisms)";
+                 if (combined.includes("TIME") || combined.includes("WORK") || combined.includes("SPEED") || combined.includes("TRAIN") || combined.includes("BOAT")) return "वेळ, अंतर आणि काम";
+                 if (combined.includes("PERCENT") || combined.includes("PROFIT") || combined.includes("LOSS") || combined.includes("RATIO") || combined.includes("AVERAGE") || combined.includes("AGE")) return "मूलभूत अंकगणित (वय, अपूर्णांक, सरासरी)";
+                 if (combined.includes("DATA") || combined.includes("GRAPH") || combined.includes("PIE") || combined.includes("TABLE")) return "माहितीचे विश्लेषण (Data Interpretation)";
+                 if (combined.includes("PUZZLE") || combined.includes("SEATING") || combined.includes("DICE") || combined.includes("FIGURE")) return "कोडी आणि अवकाशीय बुद्धिमत्ता";
+                 return "इतर (गणित आणि बुद्धिमत्ता)";
+            }
+
+            // 4. Polity Silo
+            if (cleanSub === "राज्यशास्त्र") {
+                 if (combined.includes("CONSTITUTION") || combined.includes("ARTICLE") || combined.includes("AMENDMENT") || combined.includes("FUNDAMENTAL")) return "संविधान आणि कलमे";
+                 if (combined.includes("PANCHAYAT") || combined.includes("GRAM") || combined.includes("MUNICIPAL") || combined.includes("LOCAL")) return "स्थानिक स्वराज्य संस्था (पंचायत राज)";
+                 if (combined.includes("PRESIDENT") || combined.includes("GOVERNOR") || combined.includes("MINISTER") || combined.includes("PARLIAMENT") || combined.includes("LEGISLATURE") || combined.includes("ASSEMBLY")) return "कार्यकारी आणि विधिमंडळ";
+                 if (combined.includes("JUDICIARY") || combined.includes("COURT") || combined.includes("SUPREME") || combined.includes("HIGH") || combined.includes("JUDGE")) return "न्यायव्यवस्था";
+                 if (combined.includes("ELECTION") || combined.includes("COMMISSION") || combined.includes("UPSC") || combined.includes("MPSC") || combined.includes("CAG")) return "निवडणूक आणि आयोग";
+                 return "इतर (राज्यशास्त्र)";
+            }
+
+            // 5. General Fallback for History, Geo, Economy, etc.
+            const generalBuckets = [
+                // History
+                { words: ["1857", "REVOLT", "MUTINY", "COMPANY"], name: "१८५७ चा उठाव आणि कंपनी राजवट" },
+                { words: ["CONGRESS", "NATIONAL MOVEMENT", "FREEDOM", "GANDHI", "MODERATE", "EXTREMIST", "REVOLUTION", "SATYAGRAHA"], name: "भारतीय राष्ट्रीय चळवळ" },
+                { words: ["REFORMER", "SAMAJ", "PHULE", "AMBEDKAR", "AGARKAR", "SHAHU", "KARVE", "SATYASHODHAK"], name: "सामाजिक आणि धार्मिक सुधारक" },
+                { words: ["PEASANT", "WORKER", "FARMER", "TRIBAL", "UPRISING", "COMMUNIST"], name: "शेतकरी, कामगार आणि आदिवासी चळवळी" },
+                { words: ["PRESS", "EDUCATION", "BRITISH RULE", "ACT", "CHARTER", "COUNCIL"], name: "ब्रिटिश प्रशासन आणि कायदे" },
+                { words: ["ANCIENT", "MEDIEVAL", "MARATHA", "SHIVAJI", "PESHWA", "INDUS", "MUGHAL", "SULTANATE"], name: "प्राचीन/मध्ययुगीन आणि मराठा इतिहास" },
+                // Geography
+                { words: ["RIVER", "DRAINAGE", "GODAVARI", "KRISHNA", "BHIMA", "TAPI", "NARMADA"], name: "नदी प्रणाली आणि खोरे" },
+                { words: ["MOUNTAIN", "PEAK", "SAHYADRI", "GHAT", "PHYSICAL", "PLATEAU", "COAST"], name: "महाराष्ट्राचा प्राकृतिक भूगोल" },
+                { words: ["CLIMATE", "MONSOON", "RAINFALL", "TEMPERATURE"], name: "हवामान आणि पर्जन्यमान" },
+                { words: ["SOIL", "AGRICULTURE", "CROP", "FARMING", "IRRIGATION"], name: "कृषी, माती आणि सिंचन" },
+                { words: ["MINERAL", "ORE", "COAL", "IRON", "POWER", "ENERGY", "MANGANESE", "BAUXITE"], name: "खनिजे आणि ऊर्जा संसाधने" },
+                { words: ["INDUSTRY", "TRANSPORT", "HIGHWAY", "PORT", "RAILWAY"], name: "उद्योग आणि वाहतूक" },
+                { words: ["DEMOGRAPHY", "POPULATION", "CENSUS", "LITERACY", "SEX RATIO", "MIGRATION", "SC/ST", "DISTRICT POPULATION"], name: "लोकसंख्याशास्त्र आणि जनगणना" },
+                // Economy
+                { words: ["PLANNING", "FIVE YEAR", "NITI", "PLAN"], name: "आर्थिक नियोजन आणि नीती आयोग" },
+                { words: ["BANK", "MONETARY", "RBI", "INFLATION", "CREDIT", "CURRENCY"], name: "बँकिंग आणि चलनविषयक धोरण" },
+                { words: ["BUDGET", "FISCAL", "TAX", "DEFICIT", "FINANCE", "GST"], name: "सार्वजनिक वित्त आणि करप्रणाली" },
+                { words: ["POVERTY", "UNEMPLOYMENT", "INEQUALITY", "CHALLENGES"], name: "गरिबी, बेरोजगारी आणि आर्थिक आव्हाने" },
+                { words: ["TRADE", "BOP", "FDI", "EXPORT", "IMPORT", "WTO"], name: "आंतरराष्ट्रीय व्यापार आणि व्यवहारतोल" },
+                { words: ["SCHEME", "YOJANA", "PROGRAMME", "MISSION", "DBT"], name: "सरकारी योजना आणि कल्याणकारी कार्यक्रम" },
+                // Science
+                { words: ["DISEASE", "INFECTION", "VIRUS", "BACTERIA", "HEALTH", "VITAMIN", "NUTRITION", "VACCINE", "IMMUNITY"], name: "मानवी आरोग्य, रोग आणि पोषण" },
+                { words: ["CELL", "BLOOD", "ORGAN", "SYSTEM", "REPRODUCTION", "GENETIC", "EYE", "RECEPTOR", "BRAIN", "HEART"], name: "मानवी शरीरशास्त्र आणि जीवशास्त्र" },
+                { words: ["PLANT", "BOTANY", "PHOTOSYNTHESIS", "CLASSIFICATION", "KINGDOM", "FLOWER"], name: "वनस्पतीशास्त्र" },
+                { words: ["PHYSICS", "MOTION", "LIGHT", "SOUND", "ELECTRICITY", "MAGNETISM", "FORCE", "WORK", "OPTICS", "HEAT"], name: "भौतिकशास्त्र" },
+                { words: ["CHEMISTRY", "ACID", "BASE", "METAL", "REACTION", "ATOM", "MOLECULE", "PERIODIC", "CARBON", "ALLOY"], name: "रसायनशास्त्र" },
+                { words: ["SPACE", "ISRO", "SATELLITE", "DEFENCE", "MISSILE", "TECHNOLOGY", "COMPUTER", "IT", "APACHE", "DRDO"], name: "विज्ञान आणि तंत्रज्ञान प्रगती" },
+                // Law
+                { words: ["PENAL CODE", "IPC", "OFFENCE", "PUNISHMENT", "MURDER", "THEFT", "PROPERTY", "UNLAWFUL ASSEMBLY"], name: "भारतीय दंड संहिता (IPC)" },
+                { words: ["CRIMINAL PROCEDURE", "CRPC", "ARREST", "BAIL", "WARRANT", "COURT", "POLICE", "CHARGE"], name: "फौजदारी प्रक्रिया संहिता (CrPC)" },
+                { words: ["EVIDENCE ACT", "EVIDENCE", "DOCUMENT", "WITNESS", "PRESUMPTION", "JUDICIAL NOTICE", "FACT"], name: "भारतीय पुरावा कायदा" },
+                { words: ["MAHARASHTRA POLICE ACT", "COMPENSATION", "INSPECTOR"], name: "महाराष्ट्र पोलीस कायदा" },
+                // General
+                { words: ["PASSAGE", "COMPREHENSION", "INFERENCE", "THEME", "TONE", "IDEALISM", "PSYCHOLOGY"], name: "उतारे वरील प्रश्न (आकलन)" },
+                { words: ["AWARD", "PRIZE", "SPORTS", "OLYMPIC", "BOOK", "AUTHOR", "APPOINTMENT", "INDEX", "RANK", "SUMMIT", "OPERATION DEVI SHAKTI"], name: "चालू घडामोडी (पुरस्कार, घटना)" }
             ];
 
-            for (let bucket of buckets) {
+            for (let bucket of generalBuckets) {
                 for (let word of bucket.words) {
                     if (combined.includes(word)) return bucket.name;
                 }
             }
-            let cleanSub = normalizeSubject(s);
-            return `Miscellaneous Topics (${cleanSub})`;
+            
+            return `इतर विषय (${cleanSub})`;
         }
 
         window.onload = function() {
@@ -329,7 +368,7 @@
         function renderRankedSubtopics() {
             let topicMap = {};
             
-            // --- NEW: Filter out Talathi so the blueprint is purely MPSC ---
+            // --- Filter out Talathi so the blueprint is purely MPSC ---
             let mpscOnlyData = window.allMPSCData.filter(q => q.subject !== "Talathi Exam");
             let totalQs = mpscOnlyData.length;
 
@@ -508,7 +547,7 @@
             let trapCounts = {};
             let totalTrappedQs = 0; 
             
-            // --- NEW: Filter out Talathi so the Global Stats are purely MPSC ---
+            // --- Filter out Talathi so the Global Stats are purely MPSC ---
             let mpscOnlyData = window.allMPSCData.filter(q => q.subject !== "Talathi Exam");
 
             mpscOnlyData.forEach(q => {
