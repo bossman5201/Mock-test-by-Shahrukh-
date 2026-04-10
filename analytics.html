@@ -328,9 +328,12 @@
 
         function renderRankedSubtopics() {
             let topicMap = {};
-            let totalQs = window.allMPSCData.length;
+            
+            // --- NEW: Filter out Talathi so the blueprint is purely MPSC ---
+            let mpscOnlyData = window.allMPSCData.filter(q => q.subject !== "Talathi Exam");
+            let totalQs = mpscOnlyData.length;
 
-            window.allMPSCData.forEach(q => {
+            mpscOnlyData.forEach(q => {
                 let key = `${q.clean_subject}|${q.clean_topic}`;
                 if (!topicMap[key]) {
                     topicMap[key] = {
@@ -505,7 +508,10 @@
             let trapCounts = {};
             let totalTrappedQs = 0; 
             
-            window.allMPSCData.forEach(q => {
+            // --- NEW: Filter out Talathi so the Global Stats are purely MPSC ---
+            let mpscOnlyData = window.allMPSCData.filter(q => q.subject !== "Talathi Exam");
+
+            mpscOnlyData.forEach(q => {
                 subCounts[q.clean_subject] = (subCounts[q.clean_subject] || 0) + 1;
                 if(q.clean_trap && q.clean_trap !== "No Trap / Direct Question") {
                     trapCounts[q.clean_trap] = (trapCounts[q.clean_trap] || 0) + 1;
@@ -513,7 +519,7 @@
                 }
             });
 
-            let totalQs = window.allMPSCData.length;
+            let totalQs = mpscOnlyData.length;
             let subHtml = "";
             Object.entries(subCounts).sort((a,b) => b[1]-a[1]).forEach(([s, c]) => {
                 let percent = ((c / totalQs) * 100).toFixed(1);
