@@ -286,7 +286,7 @@
         let timerInterval;
         let activeTestId = ""; 
 
-        // --- NEW METADATA CLEANER FUNCTION ---
+        // --- METADATA CLEANER FUNCTION ---
         function cleanOptionText(text) {
             if (!text) return "";
             let cleaned = text.replace(/Question Type\s*:\s*MCQ.*/gi, '');
@@ -450,7 +450,6 @@
                 btn.className = `option-btn ${userAnswers[currentIndex] === optNum ? 'selected' : ''}`;
                 btn.onclick = () => selectOption(optNum);
                 
-                // METADATA CLEANER APPLIED HERE
                 let optMar = (q.options_marathi && q.options_marathi[i]) ? cleanOptionText(q.options_marathi[i]) : "";
                 let optEng = (q.options_english && q.options_english[i]) ? cleanOptionText(q.options_english[i]) : "";
 
@@ -538,7 +537,7 @@
                 } else {
                     wrong++;
                     statusClass = 'wrong-ans';
-                    statusText = `❌ Wrong | You chose ${userAns}, Correct was ${correctAns}`;
+                    statusText = `❌ Wrong | You chose Option ${userAns}, Correct was Option ${correctAns}`;
                     
                     personalErrors.push({
                         test_id: activeTestId.replace('_analyzed', ''), 
@@ -550,8 +549,20 @@
                     });
                 }
 
-                let safeUserText = userAns ? ((q.options_english && q.options_english[userAns-1]) || `Option ${userAns}`) : "None";
-                let safeCorrectText = (correctAns >= 1 && correctAns <= 4) ? ((q.options_english && q.options_english[correctAns-1]) || `Option ${correctAns}`) : "Cancelled";
+                // --- FETCH ACTUAL OPTION TEXT ---
+                let safeUserText = "None";
+                if (userAns) {
+                    let mText = (q.options_marathi && q.options_marathi[userAns-1]) ? cleanOptionText(q.options_marathi[userAns-1]) : "";
+                    let eText = (q.options_english && q.options_english[userAns-1]) ? cleanOptionText(q.options_english[userAns-1]) : "";
+                    safeUserText = `Option ${userAns} ` + (mText || eText ? `- ${mText} ${eText}` : "");
+                }
+
+                let safeCorrectText = "Cancelled";
+                if (correctAns >= 1 && correctAns <= 4) {
+                    let mText = (q.options_marathi && q.options_marathi[correctAns-1]) ? cleanOptionText(q.options_marathi[correctAns-1]) : "";
+                    let eText = (q.options_english && q.options_english[correctAns-1]) ? cleanOptionText(q.options_english[correctAns-1]) : "";
+                    safeCorrectText = `Option ${correctAns} ` + (mText || eText ? `- ${mText} ${eText}` : "");
+                }
                 
                 let trapBadge = (q.trap_detected && q.trap_detected !== "None" && q.trap_detected !== "none") 
                                 ? `<span style="background: #fce8e6; color: #d93025; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; margin-left: 10px;">⚠️ Trap: ${q.trap_detected}</span>` : "";
