@@ -169,7 +169,6 @@
     <script>
         window.allMPSCData = [];
 
-        // --- METADATA CLEANER FUNCTION ---
         function cleanOptionText(text) {
             if (!text) return "";
             let cleaned = text.replace(/Question Type\s*:\s*MCQ.*/gi, '');
@@ -212,13 +211,12 @@
             return "सामान्य ज्ञान";
         }
 
-        // --- NEW SMART TOPIC NORMALIZER (SUBJECT SILOS) ---
-        function normalizeTopic(rawTopic, rawSub) {
+        // --- THE NEW GRANULAR BREAKOUT SYSTEM ---
+        function getBucketName(rawTopic, rawSub) {
             let t = (rawTopic || "").toString().toUpperCase();
             let cleanSub = normalizeSubject(rawSub);
             let combined = t + " " + (rawSub || "").toString().toUpperCase();
 
-            // 1. English Grammar Silo
             if (cleanSub === "इंग्रजी व्याकरण") {
                 if (combined.includes("ARTICLE")) return "उपपदे (Articles)";
                 if (combined.includes("TENSE")) return "काळ (Tenses)";
@@ -227,10 +225,8 @@
                 if (combined.includes("PREPOSITION")) return "शब्दयोगी अव्यये (Prepositions)";
                 if (combined.includes("VOCAB") || combined.includes("SYNONYM") || combined.includes("ANTONYM") || combined.includes("IDIOM") || combined.includes("PHRASE") || combined.includes("SPELL") || combined.includes("WORD")) return "शब्दसंग्रह आणि वाक्प्रचार (Vocabulary)";
                 if (combined.includes("GRAMMAR") || combined.includes("ERROR") || combined.includes("SENTENCE")) return "सामान्य व्याकरण आणि वाक्यरचना";
-                return "इतर (इंग्रजी व्याकरण)";
             }
 
-            // 2. Marathi Grammar Silo
             if (cleanSub === "मराठी व्याकरण") {
                 if (combined.includes("काळ") || combined.includes("TENSE")) return "काळ (Tenses)";
                 if (combined.includes("प्रयोग") || combined.includes("VOICE")) return "प्रयोग (Voice)";
@@ -239,10 +235,8 @@
                 if (combined.includes("समानार्थी") || combined.includes("विरुद्धार्थी") || combined.includes("वाक्यप्रचार") || combined.includes("म्हणी") || combined.includes("VOCAB")) return "शब्दसंग्रह आणि वाक्प्रचार";
                 if (combined.includes("नाम") || combined.includes("सर्वनाम") || combined.includes("विशेषण") || combined.includes("क्रियापद")) return "शब्दांच्या जाती (Parts of Speech)";
                 if (combined.includes("शुद्ध") || combined.includes("SPELL")) return "शुद्धलेखन";
-                return "इतर (मराठी व्याकरण)";
             }
 
-            // 3. Math & Reasoning Silo
             if (cleanSub === "गणित आणि बुद्धिमत्ता") {
                  if (combined.includes("SERIES") || combined.includes("NUMBER") || combined.includes("ALPHABET") || combined.includes("CODING")) return "मालिका आणि कोडिंग-डिकोडिंग";
                  if (combined.includes("DIRECTION") || combined.includes("DISTANCE") || combined.includes("BLOOD")) return "दिशा आणि नातेसंबंध";
@@ -251,29 +245,23 @@
                  if (combined.includes("PERCENT") || combined.includes("PROFIT") || combined.includes("LOSS") || combined.includes("RATIO") || combined.includes("AVERAGE") || combined.includes("AGE")) return "मूलभूत अंकगणित (वय, अपूर्णांक, सरासरी)";
                  if (combined.includes("DATA") || combined.includes("GRAPH") || combined.includes("PIE") || combined.includes("TABLE")) return "माहितीचे विश्लेषण (Data Interpretation)";
                  if (combined.includes("PUZZLE") || combined.includes("SEATING") || combined.includes("DICE") || combined.includes("FIGURE")) return "कोडी आणि अवकाशीय बुद्धिमत्ता";
-                 return "इतर (गणित आणि बुद्धिमत्ता)";
             }
 
-            // 4. Polity Silo
             if (cleanSub === "राज्यशास्त्र") {
                  if (combined.includes("CONSTITUTION") || combined.includes("ARTICLE") || combined.includes("AMENDMENT") || combined.includes("FUNDAMENTAL")) return "संविधान आणि कलमे";
                  if (combined.includes("PANCHAYAT") || combined.includes("GRAM") || combined.includes("MUNICIPAL") || combined.includes("LOCAL")) return "स्थानिक स्वराज्य संस्था (पंचायत राज)";
                  if (combined.includes("PRESIDENT") || combined.includes("GOVERNOR") || combined.includes("MINISTER") || combined.includes("PARLIAMENT") || combined.includes("LEGISLATURE") || combined.includes("ASSEMBLY")) return "कार्यकारी आणि विधिमंडळ";
                  if (combined.includes("JUDICIARY") || combined.includes("COURT") || combined.includes("SUPREME") || combined.includes("HIGH") || combined.includes("JUDGE")) return "न्यायव्यवस्था";
                  if (combined.includes("ELECTION") || combined.includes("COMMISSION") || combined.includes("UPSC") || combined.includes("MPSC") || combined.includes("CAG")) return "निवडणूक आणि आयोग";
-                 return "इतर (राज्यशास्त्र)";
             }
 
-            // 5. General Fallback for History, Geo, Economy, etc.
             const generalBuckets = [
-                // History
                 { words: ["1857", "REVOLT", "MUTINY", "COMPANY"], name: "१८५७ चा उठाव आणि कंपनी राजवट" },
                 { words: ["CONGRESS", "NATIONAL MOVEMENT", "FREEDOM", "GANDHI", "MODERATE", "EXTREMIST", "REVOLUTION", "SATYAGRAHA"], name: "भारतीय राष्ट्रीय चळवळ" },
                 { words: ["REFORMER", "SAMAJ", "PHULE", "AMBEDKAR", "AGARKAR", "SHAHU", "KARVE", "SATYASHODHAK"], name: "सामाजिक आणि धार्मिक सुधारक" },
                 { words: ["PEASANT", "WORKER", "FARMER", "TRIBAL", "UPRISING", "COMMUNIST"], name: "शेतकरी, कामगार आणि आदिवासी चळवळी" },
                 { words: ["PRESS", "EDUCATION", "BRITISH RULE", "ACT", "CHARTER", "COUNCIL"], name: "ब्रिटिश प्रशासन आणि कायदे" },
                 { words: ["ANCIENT", "MEDIEVAL", "MARATHA", "SHIVAJI", "PESHWA", "INDUS", "MUGHAL", "SULTANATE"], name: "प्राचीन/मध्ययुगीन आणि मराठा इतिहास" },
-                // Geography
                 { words: ["RIVER", "DRAINAGE", "GODAVARI", "KRISHNA", "BHIMA", "TAPI", "NARMADA"], name: "नदी प्रणाली आणि खोरे" },
                 { words: ["MOUNTAIN", "PEAK", "SAHYADRI", "GHAT", "PHYSICAL", "PLATEAU", "COAST"], name: "महाराष्ट्राचा प्राकृतिक भूगोल" },
                 { words: ["CLIMATE", "MONSOON", "RAINFALL", "TEMPERATURE"], name: "हवामान आणि पर्जन्यमान" },
@@ -281,26 +269,22 @@
                 { words: ["MINERAL", "ORE", "COAL", "IRON", "POWER", "ENERGY", "MANGANESE", "BAUXITE"], name: "खनिजे आणि ऊर्जा संसाधने" },
                 { words: ["INDUSTRY", "TRANSPORT", "HIGHWAY", "PORT", "RAILWAY"], name: "उद्योग आणि वाहतूक" },
                 { words: ["DEMOGRAPHY", "POPULATION", "CENSUS", "LITERACY", "SEX RATIO", "MIGRATION", "SC/ST", "DISTRICT POPULATION"], name: "लोकसंख्याशास्त्र आणि जनगणना" },
-                // Economy
                 { words: ["PLANNING", "FIVE YEAR", "NITI", "PLAN"], name: "आर्थिक नियोजन आणि नीती आयोग" },
                 { words: ["BANK", "MONETARY", "RBI", "INFLATION", "CREDIT", "CURRENCY"], name: "बँकिंग आणि चलनविषयक धोरण" },
                 { words: ["BUDGET", "FISCAL", "TAX", "DEFICIT", "FINANCE", "GST"], name: "सार्वजनिक वित्त आणि करप्रणाली" },
                 { words: ["POVERTY", "UNEMPLOYMENT", "INEQUALITY", "CHALLENGES"], name: "गरिबी, बेरोजगारी आणि आर्थिक आव्हाने" },
                 { words: ["TRADE", "BOP", "FDI", "EXPORT", "IMPORT", "WTO"], name: "आंतरराष्ट्रीय व्यापार आणि व्यवहारतोल" },
                 { words: ["SCHEME", "YOJANA", "PROGRAMME", "MISSION", "DBT"], name: "सरकारी योजना आणि कल्याणकारी कार्यक्रम" },
-                // Science
                 { words: ["DISEASE", "INFECTION", "VIRUS", "BACTERIA", "HEALTH", "VITAMIN", "NUTRITION", "VACCINE", "IMMUNITY"], name: "मानवी आरोग्य, रोग आणि पोषण" },
                 { words: ["CELL", "BLOOD", "ORGAN", "SYSTEM", "REPRODUCTION", "GENETIC", "EYE", "RECEPTOR", "BRAIN", "HEART"], name: "मानवी शरीरशास्त्र आणि जीवशास्त्र" },
                 { words: ["PLANT", "BOTANY", "PHOTOSYNTHESIS", "CLASSIFICATION", "KINGDOM", "FLOWER"], name: "वनस्पतीशास्त्र" },
                 { words: ["PHYSICS", "MOTION", "LIGHT", "SOUND", "ELECTRICITY", "MAGNETISM", "FORCE", "WORK", "OPTICS", "HEAT"], name: "भौतिकशास्त्र" },
                 { words: ["CHEMISTRY", "ACID", "BASE", "METAL", "REACTION", "ATOM", "MOLECULE", "PERIODIC", "CARBON", "ALLOY"], name: "रसायनशास्त्र" },
                 { words: ["SPACE", "ISRO", "SATELLITE", "DEFENCE", "MISSILE", "TECHNOLOGY", "COMPUTER", "IT", "APACHE", "DRDO"], name: "विज्ञान आणि तंत्रज्ञान प्रगती" },
-                // Law
                 { words: ["PENAL CODE", "IPC", "OFFENCE", "PUNISHMENT", "MURDER", "THEFT", "PROPERTY", "UNLAWFUL ASSEMBLY"], name: "भारतीय दंड संहिता (IPC)" },
                 { words: ["CRIMINAL PROCEDURE", "CRPC", "ARREST", "BAIL", "WARRANT", "COURT", "POLICE", "CHARGE"], name: "फौजदारी प्रक्रिया संहिता (CrPC)" },
                 { words: ["EVIDENCE ACT", "EVIDENCE", "DOCUMENT", "WITNESS", "PRESUMPTION", "JUDICIAL NOTICE", "FACT"], name: "भारतीय पुरावा कायदा" },
                 { words: ["MAHARASHTRA POLICE ACT", "COMPENSATION", "INSPECTOR"], name: "महाराष्ट्र पोलीस कायदा" },
-                // General
                 { words: ["PASSAGE", "COMPREHENSION", "INFERENCE", "THEME", "TONE", "IDEALISM", "PSYCHOLOGY"], name: "उतारे वरील प्रश्न (आकलन)" },
                 { words: ["AWARD", "PRIZE", "SPORTS", "OLYMPIC", "BOOK", "AUTHOR", "APPOINTMENT", "INDEX", "RANK", "SUMMIT", "OPERATION DEVI SHAKTI"], name: "चालू घडामोडी (पुरस्कार, घटना)" }
             ];
@@ -311,15 +295,13 @@
                 }
             }
             
-            return `इतर विषय (${cleanSub})`;
+            return null; // Return null so the topic can stand on its own
         }
 
         window.onload = function() {
             const testIds = [
-                // MPSC Data
                 "1", "1_1", "1_2", "2", "2_1", "2_2", "2_3", "2_4", "3", "3_1", "3_2", "3_3", "3_4", 
                 "4", "4_1", "4_2", "4_3", "4_4", "4_5", "4_6", "4_7", "4_8", "4_9", "5", "5_1", "5_2", "5_3", "5_4",
-                // Talathi Data
                 "talathi_1", "talathi_2", "talathi_3", "talathi_4", "talathi_5", "talathi_6", "talathi_7", "talathi_8", "talathi_9", "talathi_10",
                 "talathi_11", "talathi_12", "talathi_13", "talathi_14", "talathi_15", "talathi_16", "talathi_17", "talathi_18", "talathi_19", "talathi_20",
                 "talathi_21", "talathi_22", "talathi_23", "talathi_24", "talathi_25", "talathi_26", "talathi_27", "talathi_28", "talathi_29", "talathi_30",
@@ -345,10 +327,39 @@
                 return;
             }
 
+            // 1. Initial cleanup
             window.allMPSCData.forEach(q => {
                 q.clean_subject = normalizeSubject(q.subject);
-                q.clean_topic = normalizeTopic(q.topic, q.subject);
                 q.clean_trap = normalizeTrap(q.trap_detected);
+            });
+
+            // 2. Count raw topics to find break-out candidates (MPSC Only)
+            let mpscOnlyData = window.allMPSCData.filter(q => q.subject !== "Talathi Exam");
+            let rawTopicFreq = {};
+            mpscOnlyData.forEach(q => {
+                let rawT = (q.topic || "अज्ञात विषय").trim();
+                let key = q.clean_subject + "|" + rawT.toUpperCase();
+                rawTopicFreq[key] = (rawTopicFreq[key] || 0) + 1;
+            });
+
+            // 3. Smart Breakout Algorithm
+            window.allMPSCData.forEach(q => {
+                let rawT = (q.topic || "अज्ञात विषय").trim();
+                let key = q.clean_subject + "|" + rawT.toUpperCase();
+
+                // If this specific topic has 5 or more questions, it gets its own dedicated row
+                if (rawTopicFreq[key] >= 5 && rawT !== "अज्ञात विषय") {
+                    q.clean_topic = rawT.charAt(0).toUpperCase() + rawT.slice(1);
+                } else {
+                    // Otherwise, try to put it in a master bucket
+                    let bucketMatch = getBucketName(rawT, q.subject);
+                    if (bucketMatch) {
+                        q.clean_topic = bucketMatch;
+                    } else {
+                        // If no bucket matches, it still gets its own row!
+                        q.clean_topic = rawT.charAt(0).toUpperCase() + rawT.slice(1);
+                    }
+                }
             });
 
             renderRankedSubtopics(); 
@@ -368,7 +379,6 @@
         function renderRankedSubtopics() {
             let topicMap = {};
             
-            // --- Filter out Talathi so the blueprint is purely MPSC ---
             let mpscOnlyData = window.allMPSCData.filter(q => q.subject !== "Talathi Exam");
             let totalQs = mpscOnlyData.length;
 
@@ -492,7 +502,14 @@
                     totalTrappedErrors++;
                 }
                 let cleanSub = normalizeSubject(err.subject);
-                let cleanTop = normalizeTopic(err.topic, err.subject);
+                
+                // Safely assign the topic in case it wasn't tracked properly
+                let cleanTop = err.topic || "अज्ञात विषय";
+                if (cleanTop !== "अज्ञात विषय") {
+                    let bucketMatch = getBucketName(cleanTop, err.subject);
+                    if (bucketMatch) cleanTop = bucketMatch;
+                }
+                
                 let topic = `${cleanSub} > ${cleanTop}`;
                 topicFails[topic] = (topicFails[topic] || 0) + 1;
             });
@@ -547,7 +564,6 @@
             let trapCounts = {};
             let totalTrappedQs = 0; 
             
-            // --- Filter out Talathi so the Global Stats are purely MPSC ---
             let mpscOnlyData = window.allMPSCData.filter(q => q.subject !== "Talathi Exam");
 
             mpscOnlyData.forEach(q => {
